@@ -124,8 +124,19 @@ function cmdLs(args: string, forceAll = false): string {
   const header = `<span class="tc-muted">Permissions  Size User Date Modified Name</span>`;
   lines.push(header);
 
+  const colorPerms = (perms: string): string => {
+    // d in blue, user rwx in yellow, group r-x in green, other r-- in muted
+    const d = perms[0] === 'd'
+      ? '<span class="tc-cyan">d</span>'
+      : '<span class="tc-muted">.</span>';
+    const u = `<span class="tc-yellow">${perms.slice(1, 4)}</span>`;
+    const g = `<span class="tc-green">${perms.slice(4, 7)}</span>`;
+    const o = `<span class="tc-muted">${perms.slice(7, 10)}</span>`;
+    return d + u + g + o;
+  };
+
   const makeLine = (perms: string, size: string, name: string) => {
-    const p = `<span class="tc-green">${perms}</span>`;
+    const p = colorPerms(perms);
     const s = size.padStart(5);
     const d = fakeDate();
     return `${p} ${s} <span class="tc-accent">ryan</span> ${d} ${name}`;
