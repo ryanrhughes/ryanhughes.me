@@ -59,6 +59,10 @@ export function appendOutput(html: string) {
       if (cmd) executeCommandFn(cmd);
     });
   });
+  // Scroll after images load (bio headshot, icons, etc.)
+  div.querySelectorAll('img').forEach(img => {
+    img.addEventListener('load', () => scrollToBottom());
+  });
   scrollToBottom();
 }
 
@@ -74,6 +78,13 @@ export function scrollToBottom() {
   requestAnimationFrame(() => {
     terminalEl.scrollTop = terminalEl.scrollHeight;
   });
+  // Delayed scroll to catch images/fonts that load after initial render
+  setTimeout(() => {
+    terminalEl.scrollTop = terminalEl.scrollHeight;
+  }, 50);
+  setTimeout(() => {
+    terminalEl.scrollTop = terminalEl.scrollHeight;
+  }, 200);
 }
 
 export function clearOutput() {
