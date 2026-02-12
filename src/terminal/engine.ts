@@ -119,15 +119,19 @@ function cmdLs(args: string, forceAll = false): string {
     return parts.join('  ');
   }
 
-  // Long format
+  // Long format — fixed-width columns
+  // Col layout (visible chars):
+  //   Perms(10) ' ' Size(5) ' ' User(4) ' ' Date(12) ' ' Name
   const lines: string[] = [];
-  const header = `<span class="tc-muted">Permissions  Size User Date Modified Name</span>`;
+  // Columns: perms(10) gap(2) size(4) gap(2) user(4) gap(2) date(12) gap(2) name
+  // Total before Name = 38
+  const header = `<span class="tc-muted">Perms       Size  User  Modified      Name</span>`;
   lines.push(header);
 
   const colorPerms = (perms: string): string => {
     return perms.split('').map(c => {
       switch (c) {
-        case 'd': return '<span style="color:#799FF3">d</span>';
+        case 'd': return '<span class="tc-blue">d</span>';
         case 'r': return '<span class="tc-yellow">r</span>';
         case 'w': return '<span class="tc-red">w</span>';
         case 'x': return '<span class="tc-green">x</span>';
@@ -138,14 +142,15 @@ function cmdLs(args: string, forceAll = false): string {
 
   const makeLine = (perms: string, size: string, name: string) => {
     const p = colorPerms(perms);
-    const s = size.padStart(5);
+    const s = size.padStart(4);
     const d = fakeDate();
-    return `${p} ${s} <span class="tc-accent">ryan</span> ${d} ${name}`;
+    // perms(10) + 2 + size(4 right-aligned) + 2 + user(4) + 2 + date(12) + 2 + name
+    return `${p}  ${s}  <span class="tc-yellow">ryan</span>  ${d}  ${name}`;
   };
 
   if (hasA) {
-    lines.push(makeLine('drwxr-xr-x', '-', '<span class="tc-muted">.</span>'));
-    lines.push(makeLine('drwxr-xr-x', '-', '<span class="tc-muted">..</span>'));
+    lines.push(makeLine('drwxr-xr-x', '-', '<span class="tc-icon tc-dir-icon">\uf07b</span> <span class="tc-muted">.</span>'));
+    lines.push(makeLine('drwxr-xr-x', '-', '<span class="tc-icon tc-dir-icon">\uf07b</span> <span class="tc-muted">..</span>'));
   }
 
   for (const [name, info] of Object.entries(entries)) {
@@ -316,8 +321,8 @@ function executeSingle(command: string, args: string, ctx: CommandContext): stri
       }
       lastCmdError = true;
       const responses = [
-        `<span class="tc-red">zsh: command not found: ${escapeHtml(command)}</span>`,
-        `<span class="tc-red">${escapeHtml(command)}: not found.</span> <span class="tc-muted">Try ${click('help', 'help', 'tc-link-inline')}</span>`,
+        `<span class="tc-red">Unknown command: ${escapeHtml(command)}</span>`,
+        `<span class="tc-red">Unknown command: ${escapeHtml(command)}.</span> <span class="tc-muted">Try ${click('help', 'help', 'tc-link-inline')}</span>`,
         `<span class="tc-red">${escapeHtml(command)}? Never heard of her.</span>`,
       ];
       return responses[commandHistory.length % responses.length];
@@ -390,15 +395,53 @@ export function executeCommand(raw: string) {
       await sleep(400);
       appendOutput(`<span class="tc-red tc-bold">☠  KERNEL PANIC — NOT SYNCING</span>`);
       await sleep(1200);
+      // Screen glitch effect
+      const fullscreen = document.querySelector('.terminal-fullscreen') as HTMLElement;
+      const glitch = () => {
+        fullscreen.style.transform = `translate(${(Math.random()-0.5)*8}px, ${(Math.random()-0.5)*4}px) skewX(${(Math.random()-0.5)*2}deg)`;
+        fullscreen.style.filter = `hue-rotate(${Math.random()*360}deg) brightness(${0.3+Math.random()*2})`;
+      };
+      const glitchInterval = setInterval(glitch, 50);
+      await sleep(800);
+      clearInterval(glitchInterval);
+      fullscreen.style.transform = '';
+      fullscreen.style.filter = '';
+
       // Screen goes "black"
       const outputEl = document.getElementById('terminal-output')!;
       outputEl.innerHTML = '';
-      await sleep(1500);
-      appendOutput(`<span class="tc-green tc-bold">...just kidding.</span>`);
-      await sleep(800);
-      appendOutput(`<span class="tc-muted">Like I'd let you do that in a browser.</span>`);
+      await sleep(2000);
+
+      // Slow flicker back
+      fullscreen.style.opacity = '0';
+      await sleep(300);
+      fullscreen.style.opacity = '1';
+      await sleep(100);
+      fullscreen.style.opacity = '0';
+      await sleep(200);
+      fullscreen.style.opacity = '1';
+      await sleep(100);
+      fullscreen.style.opacity = '0';
       await sleep(500);
-      lastCmdError = true;
+      fullscreen.style.opacity = '1';
+
+      appendOutput(`<span class="tc-green tc-bold">...just kidding.</span>`);
+      await sleep(1200);
+      appendOutput(`<span class="tc-muted">Initiating new session...</span>`);
+      await sleep(800);
+      appendOutput(`<span class="tc-muted">Restoring /home/ryan/...</span>`);
+      await sleep(600);
+      outputEl.innerHTML = '';
+      // Re-run boot sequence
+      cwd = '~';
+      lastCmdError = false;
+      const bootOutput = executeSingle('neofetch', '', ctx);
+      if (bootOutput) appendOutput(bootOutput);
+      const now = new Date();
+      const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      const dateStr = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+      appendOutput(`<span class="tc-muted">Last login: ${dateStr} from the void</span>\n\n<span class="tc-white">Welcome back.</span> <span class="tc-muted">Try not to delete everything this time.</span>`);
       updatePrompt();
       inputArea.style.display = 'flex';
       inputEl.focus();
