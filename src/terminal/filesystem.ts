@@ -8,12 +8,23 @@ interface FilesystemData {
   fileContents: Record<string, string>;
 }
 
+function makeBanner(text: string, width = 48): string {
+  const inner = '  ' + text;
+  const padded = inner.padEnd(width - 2);
+  const bar = '═'.repeat(width - 2);
+  return `<span class="tc-header">╔${bar}╗\n║${padded}║\n╚${bar}╝</span>`;
+}
+
+function expandBanners(html: string): string {
+  return html.replace(/<banner>(.*?)<\/banner>/g, (_, text) => makeBanner(text.trim()));
+}
+
 function parseMetadata(raw: string): { content: string; url?: string } {
   const urlMatch = raw.match(/^<!--\s*url:\s*(.+?)\s*-->\n?/);
   if (urlMatch) {
-    return { content: raw.slice(urlMatch[0].length), url: urlMatch[1] };
+    return { content: expandBanners(raw.slice(urlMatch[0].length)), url: urlMatch[1] };
   }
-  return { content: raw };
+  return { content: expandBanners(raw) };
 }
 
 export function buildFilesystem(): FilesystemData {
