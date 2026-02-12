@@ -9,6 +9,7 @@ import { cmdCowsay } from '../commands/cowsay';
 import { cmdHistory } from '../commands/history';
 import { cmdUptime } from '../commands/uptime';
 import { cmdBuiltin } from '../commands/builtins';
+import { cmdOpencode } from '../commands/opencode';
 
 // ── State ──
 let cwd = '~';
@@ -295,6 +296,7 @@ export function executeCommand(raw: string) {
     case 'll': output = cmdLs(args, true); break;
     case 'lt': output = cmdTree(args); break;
     case 'tree': output = cmdTree(args); break;
+    case 'opencode': case 'c': output = cmdOpencode(args, ctx); break;
     case 'cd': output = cmdCd(args); break;
     case 'cat': output = cmdCat(args); break;
     case 'open': output = cmdOpen(args); break;
@@ -338,7 +340,7 @@ export function executeCommand(raw: string) {
 function getCompletions(partial: string): string[] {
   const parts = partial.split(/\s+/);
   if (parts.length <= 1) {
-    const cmds = ['help','ls','ll','lt','tree','cd','cat','open','pwd','whoami','man','neofetch','htop','history','uptime','cowsay','clear','exit','sudo','rm','vim','nvim','emacs','nano','rails','echo','ping','ssh','date'];
+    const cmds = ['help','ls','ll','lt','tree','cd','cat','open','opencode','c','pwd','whoami','man','neofetch','htop','history','uptime','cowsay','clear','exit','sudo','rm','vim','nvim','emacs','nano','rails','echo','ping','ssh','date'];
     return cmds.filter(c => c.startsWith(parts[0]));
   }
   const cmd = parts[0];
