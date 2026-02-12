@@ -160,7 +160,8 @@ html, body {
   width: 1.1em;
   height: 1.1em;
   vertical-align: middle;
-  margin-right: 0.3em;
+  margin-right: 0.1em;
+  margin-left: 0.2em;
   image-rendering: pixelated;
 }
 
