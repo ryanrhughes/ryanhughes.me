@@ -23,7 +23,7 @@ export function cmdOpencode(_args: string, _ctx: CommandContext): string {
     <span class="tc-purple">LSP-aware</span> — understands your code, not just your files
 
   <span class="tc-label">Link:</span>   <a href="https://opencode.ai" target="_blank" class="tc-link">opencode.ai</a>
-  <span class="tc-label">Source:</span> <a href="https://github.com/sst/opencode" target="_blank" class="tc-link">github.com/sst/opencode</a>
+  <span class="tc-label">Source:</span> <a href="https://github.com/anomalyco/opencode" target="_blank" class="tc-link">github.com/anomalyco/opencode</a>
 
   <span class="tc-muted">// this site was built with opencode. obviously.</span>`;
 }
