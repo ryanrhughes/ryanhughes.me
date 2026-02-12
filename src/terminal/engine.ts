@@ -125,14 +125,15 @@ function cmdLs(args: string, forceAll = false): string {
   lines.push(header);
 
   const colorPerms = (perms: string): string => {
-    // d in blue, user rwx in yellow, group r-x in green, other r-- in muted
-    const d = perms[0] === 'd'
-      ? '<span class="tc-cyan">d</span>'
-      : '<span class="tc-muted">.</span>';
-    const u = `<span class="tc-yellow">${perms.slice(1, 4)}</span>`;
-    const g = `<span class="tc-green">${perms.slice(4, 7)}</span>`;
-    const o = `<span class="tc-muted">${perms.slice(7, 10)}</span>`;
-    return d + u + g + o;
+    return perms.split('').map(c => {
+      switch (c) {
+        case 'd': return '<span class="tc-cyan">d</span>';
+        case 'r': return '<span class="tc-yellow">r</span>';
+        case 'w': return '<span class="tc-red">w</span>';
+        case 'x': return '<span class="tc-green">x</span>';
+        default:  return '<span class="tc-muted">-</span>';
+      }
+    }).join('');
   };
 
   const makeLine = (perms: string, size: string, name: string) => {
