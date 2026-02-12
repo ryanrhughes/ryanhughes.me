@@ -127,7 +127,7 @@ function cmdLs(args: string, forceAll = false): string {
   const colorPerms = (perms: string): string => {
     return perms.split('').map(c => {
       switch (c) {
-        case 'd': return '<span class="tc-cyan">d</span>';
+        case 'd': return '<span style="color:#799FF3">d</span>';
         case 'r': return '<span class="tc-yellow">r</span>';
         case 'w': return '<span class="tc-red">w</span>';
         case 'x': return '<span class="tc-green">x</span>';
