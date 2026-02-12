@@ -8,15 +8,19 @@ interface FilesystemData {
   fileContents: Record<string, string>;
 }
 
-function makeBanner(text: string, width = 48): string {
+function makeBanner(text: string, style: 'double' | 'single' = 'double', width = 48): string {
   const inner = '  ' + text;
   const padded = inner.padEnd(width - 2);
-  const bar = '═'.repeat(width - 2);
-  return `<span class="tc-header">╔${bar}╗\n║${padded}║\n╚${bar}╝</span>`;
+  const [tl, h, vl, tr, bl, br] = style === 'single'
+    ? ['┌', '─', '│', '┐', '└', '┘']
+    : ['╔', '═', '║', '╗', '╚', '╝'];
+  const bar = h.repeat(width - 2);
+  return `<span class="tc-header">${tl}${bar}${tr}\n${vl}${padded}${vl}\n${bl}${bar}${br}</span>`;
 }
 
 function expandBanners(html: string): string {
-  return html.replace(/<banner>(.*?)<\/banner>/g, (_, text) => makeBanner(text.trim()));
+  return html.replace(/<banner(?:\s+style="(single|double)")?>(.*?)<\/banner>/g,
+    (_, style, text) => makeBanner(text.trim(), (style as any) || 'double'));
 }
 
 function parseMetadata(raw: string): { content: string; url?: string } {
