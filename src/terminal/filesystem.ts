@@ -8,14 +8,9 @@ interface FilesystemData {
   fileContents: Record<string, string>;
 }
 
-function makeBanner(text: string, style: 'double' | 'single' = 'double', width = 48): string {
-  const inner = '  ' + text;
-  const padded = inner.padEnd(width - 2);
-  const [tl, h, vl, tr, bl, br] = style === 'single'
-    ? ['┌', '─', '│', '┐', '└', '┘']
-    : ['╔', '═', '║', '╗', '╚', '╝'];
-  const bar = h.repeat(width - 2);
-  return `<span class="tc-header">${tl}${bar}${tr}\n${vl}${padded}${vl}\n${bl}${bar}${br}</span>`;
+function makeBanner(text: string, style: 'double' | 'single' = 'double'): string {
+  const cls = style === 'single' ? 'tc-banner tc-banner-single' : 'tc-banner';
+  return `<span class="${cls}">${text}</span>`;
 }
 
 function expandBanners(html: string): string {

@@ -262,6 +262,20 @@ html, body {
   font-weight: bold;
 }
 
+.tc-banner {
+  display: inline-block;
+  color: var(--color-tn-purple);
+  font-weight: bold;
+  border: 2px double var(--color-tn-purple);
+  padding: 0.15em 1em;
+  margin-bottom: 0.25em;
+}
+
+.tc-banner-single {
+  border-style: solid;
+  border-width: 1px;
+}
+
 .tc-label {
   color: var(--color-tn-blue);
   font-weight: 600;
