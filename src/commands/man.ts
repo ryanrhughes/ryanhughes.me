@@ -31,9 +31,10 @@ export function cmdMan(args: string, ctx: CommandContext): { output: string; err
        <span class="tc-white">LOCATION</span>     Fort Lauderdale, FL
 
 <span class="tc-yellow">BUGS</span>
-       Cannot stop starting new projects. Runs everything on
-       master — production is the only environment that matters.
-       Caffeine dependency classified as critical infrastructure.
+       First website still online because he forgot the password.
+       Cannot stop building things. Reformed Apple fanboy —
+       relapse unlikely but not impossible. Considers "enough
+       seasons for one lifetime" a valid reason to relocate.
 
 <span class="tc-yellow">SEE ALSO</span>
        ${click('resume.txt', 'cat resume.txt', 'tc-link-inline')}, ${click('connect/', 'cat connect/', 'tc-link-inline')}, <a href="https://heyoodle.com" target="_blank" class="tc-link">heyoodle.com</a>, <a href="https://x.com/ryanrhughes" target="_blank" class="tc-link">@ryanrhughes</a>` };
