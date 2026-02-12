@@ -63,41 +63,90 @@ function getContext(): CommandContext {
 }
 
 // ── FS commands (inline since they mutate cwd) ──
-function cmdLs(args: string, showAll = false): string {
+function parseLsArgs(args: string): { flags: string; path: string } {
   const tokens = args.trim().split(/\s+/).filter(Boolean);
-  const flags: string[] = [];
-  const paths: string[] = [];
+  let flags = '';
+  let path = '';
   for (const t of tokens) {
-    if (t.startsWith('-')) flags.push(t);
-    else paths.push(t);
+    if (t.startsWith('-')) flags += t.slice(1);
+    else path = t;
   }
-  const hasA = showAll || flags.some(f => /a/.test(f));
-  const target = paths[0] || cwd;
+  return { flags, path };
+}
+
+function fakeSize(): string {
+  const sizes = ['512', '1.2k', '2.4k', '3.8k', '4.1k', '768', '1.9k', '640', '2.1k', '1.5k'];
+  return sizes[Math.floor(Math.random() * sizes.length)];
+}
+
+function fakeDate(): string {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const m = months[Math.floor(Math.random() * 12)];
+  const d = String(Math.floor(Math.random() * 28) + 1).padStart(2, ' ');
+  const h = String(Math.floor(Math.random() * 24)).padStart(2, '0');
+  const min = String(Math.floor(Math.random() * 60)).padStart(2, '0');
+  return `${d} ${m} ${h}:${min}`;
+}
+
+function cmdLs(args: string, forceAll = false): string {
+  const { flags, path } = parseLsArgs(args);
+  const hasA = forceAll || flags.includes('a');
+  const hasL = forceAll || flags.includes('l');
+  const target = path || cwd;
   const resolved = resolvePath(target);
 
   if (!fs[resolved]) {
     lastCmdError = true;
-    return `<span class="tc-red">ls: cannot access '${escapeHtml(paths[0] || '.')}': No such file or directory</span>`;
+    return `<span class="tc-red">ls: cannot access '${escapeHtml(path || '.')}': No such file or directory</span>`;
   }
 
   const entries = fs[resolved];
-  const parts: string[] = [];
 
-  if (hasA) parts.push('<span class="tc-muted">.  ..</span>');
+  if (!hasL) {
+    // Simple mode
+    const parts: string[] = [];
+    if (hasA) parts.push('<span class="tc-muted">.  ..</span>');
+    for (const [name, info] of Object.entries(entries)) {
+      if (name === '_type') continue;
+      if (name.startsWith('.') && !hasA) continue;
+      if ((info as any)._type === 'dir') {
+        parts.push(dirClick(name, resolved === '~' ? name : resolved + '/' + name));
+      } else {
+        parts.push(fileClick(name, resolved === '~' ? name : resolved + '/' + name));
+      }
+    }
+    return parts.join('  ');
+  }
+
+  // Long format
+  const lines: string[] = [];
+  const header = `<span class="tc-muted">Permissions  Size User Date Modified Name</span>`;
+  lines.push(header);
+
+  const makeLine = (perms: string, size: string, name: string) => {
+    const p = `<span class="tc-green">${perms}</span>`;
+    const s = size.padStart(5);
+    const d = fakeDate();
+    return `${p} ${s} <span class="tc-accent">ryan</span> ${d} ${name}`;
+  };
+
+  if (hasA) {
+    lines.push(makeLine('drwxr-xr-x', '-', '<span class="tc-muted">.</span>'));
+    lines.push(makeLine('drwxr-xr-x', '-', '<span class="tc-muted">..</span>'));
+  }
 
   for (const [name, info] of Object.entries(entries)) {
     if (name === '_type') continue;
     if (name.startsWith('.') && !hasA) continue;
-    if ((info as any)._type === 'dir') {
-      const cdPath = resolved === '~' ? name : resolved + '/' + name;
-      parts.push(dirClick(name, cdPath));
-    } else {
-      const catPath = resolved === '~' ? name : resolved + '/' + name;
-      parts.push(fileClick(name, catPath));
-    }
+    const isDir = (info as any)._type === 'dir';
+    const perms = isDir ? 'drwxr-xr-x' : '-rw-r--r--';
+    const size = isDir ? '-' : fakeSize();
+    const fullPath = resolved === '~' ? name : resolved + '/' + name;
+    const display = isDir ? dirClick(name, fullPath) : fileClick(name, fullPath);
+    lines.push(makeLine(perms, size, display));
   }
 
-  return parts.join('  ');
+  return lines.join('\n');
 }
 
 function cmdCd(args: string): string {
