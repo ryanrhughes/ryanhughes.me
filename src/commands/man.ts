@@ -6,7 +6,7 @@ export function cmdMan(args: string, ctx: CommandContext): { output: string; err
     return { output: `<span class="tc-yellow">RYAN(1)</span>                    <span class="tc-muted">User Commands</span>                    <span class="tc-yellow">RYAN(1)</span>
 
 <span class="tc-yellow">NAME</span>
-       ryan — builder, founder, open-source contributor
+       ryan — husband, builder, founder, open-source contributor
 
 <span class="tc-yellow">SYNOPSIS</span>
        <span class="tc-white">ryan</span> [--build] [--break] [--fix] [--repeat]
@@ -14,8 +14,8 @@ export function cmdMan(args: string, ctx: CommandContext): { output: string; err
 <span class="tc-yellow">DESCRIPTION</span>
        Partner & CIO at ${click('Oodle', 'cat projects/oodle', 'tc-link-inline')}. Co-founder of ${click('Third Helix', 'cat projects/third-helix', 'tc-link-inline')}.
        Core contributor to ${click('Omarchy', 'cat projects/omarchy', 'tc-link-inline')}. Runs ${click('luxury vacation rentals', 'cat projects/sunset-villas', 'tc-link-inline')} near
-       Disney & Universal. Lives in Fort Lauderdale with two dogs
-       who are better than your dogs.
+       Disney & Universal. Lives in Fort Lauderdale with his wife
+       and two dogs who are better than your dogs.
 
 <span class="tc-yellow">OPTIONS</span>
        <span class="tc-white">--coffee</span>     Required.

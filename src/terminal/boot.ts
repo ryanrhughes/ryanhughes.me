@@ -59,7 +59,7 @@ export async function boot() {
   await typeLine('whoami', outputEl);
   commandHistory.push('whoami');
   appendOutput(`<span class="tc-accent tc-bold" style="font-size:1.1em">Ryan Hughes</span>
-<span class="tc-muted">builder · founder · open-source contributor · Fort Lauderdale, FL</span>`);
+<span class="tc-muted">husband · builder · founder · open-source contributor · Fort Lauderdale, FL</span>`);
 
   await sleep(300);
 
