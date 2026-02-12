@@ -266,9 +266,12 @@ html, body {
   display: inline-block;
   color: var(--color-tn-purple);
   font-weight: bold;
-  border: 2px double var(--color-tn-purple);
-  padding: 0.15em 1em;
-  margin-bottom: 0.25em;
+  font-size: 1.1em;
+  border: 3px double var(--color-tn-purple);
+  padding: 0.35em 1.5em;
+  margin-bottom: 0.75em;
+  margin-top: 0.25em;
+  letter-spacing: 0.03em;
 }
 
 .tc-banner-single {

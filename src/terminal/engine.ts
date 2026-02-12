@@ -63,20 +63,31 @@ function getContext(): CommandContext {
 }
 
 // ── FS commands (inline since they mutate cwd) ──
-function cmdLs(args: string): string {
-  const target = args.trim() || cwd;
+function cmdLs(args: string, showAll = false): string {
+  const tokens = args.trim().split(/\s+/).filter(Boolean);
+  const flags: string[] = [];
+  const paths: string[] = [];
+  for (const t of tokens) {
+    if (t.startsWith('-')) flags.push(t);
+    else paths.push(t);
+  }
+  const hasA = showAll || flags.some(f => /a/.test(f));
+  const target = paths[0] || cwd;
   const resolved = resolvePath(target);
 
   if (!fs[resolved]) {
     lastCmdError = true;
-    return `<span class="tc-red">ls: cannot access '${escapeHtml(args.trim() || '.')}': No such file or directory</span>`;
+    return `<span class="tc-red">ls: cannot access '${escapeHtml(paths[0] || '.')}': No such file or directory</span>`;
   }
 
   const entries = fs[resolved];
   const parts: string[] = [];
 
+  if (hasA) parts.push('<span class="tc-muted">.  ..</span>');
+
   for (const [name, info] of Object.entries(entries)) {
     if (name === '_type') continue;
+    if (name.startsWith('.') && !hasA) continue;
     if ((info as any)._type === 'dir') {
       const cdPath = resolved === '~' ? name : resolved + '/' + name;
       parts.push(dirClick(name, cdPath));
@@ -84,10 +95,6 @@ function cmdLs(args: string): string {
       const catPath = resolved === '~' ? name : resolved + '/' + name;
       parts.push(fileClick(name, catPath));
     }
-  }
-
-  if (args.includes('-a') || args.includes('-la') || args.includes('-al')) {
-    parts.unshift('<span class="tc-muted">.  ..</span>');
   }
 
   return parts.join('  ');
@@ -196,6 +203,7 @@ export function executeCommand(raw: string) {
   switch (command) {
     case 'help': output = cmdHelp(args, ctx); break;
     case 'ls': output = cmdLs(args); break;
+    case 'll': output = cmdLs(args, true); break;
     case 'cd': output = cmdCd(args); break;
     case 'cat': output = cmdCat(args); break;
     case 'open': output = cmdOpen(args); break;
@@ -239,7 +247,7 @@ export function executeCommand(raw: string) {
 function getCompletions(partial: string): string[] {
   const parts = partial.split(/\s+/);
   if (parts.length <= 1) {
-    const cmds = ['help','ls','cd','cat','open','pwd','whoami','man','neofetch','htop','history','uptime','cowsay','clear','exit','sudo','rm','vim','nvim','emacs','nano','rails','echo','ping','ssh','date'];
+    const cmds = ['help','ls','ll','cd','cat','open','pwd','whoami','man','neofetch','htop','history','uptime','cowsay','clear','exit','sudo','rm','vim','nvim','emacs','nano','rails','echo','ping','ssh','date'];
     return cmds.filter(c => c.startsWith(parts[0]));
   }
   const cmd = parts[0];
