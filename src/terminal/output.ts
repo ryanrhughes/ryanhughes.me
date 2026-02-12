@@ -40,6 +40,10 @@ export function dirClick(name: string, path: string): string {
 
 export function fileClick(name: string, path: string, icon?: string): string {
   const i = getFileIcon(name, icon);
+  // Support image icons (paths starting with /)
+  if (i.startsWith('/') || i.startsWith('http')) {
+    return `<img src="${i}" class="tc-img-icon" alt="" /> ` + click(name, `cat ${path}`, 'tc-file');
+  }
   return `<span class="tc-icon tc-file-icon">${i}</span> ` + click(name, `cat ${path}`, 'tc-file');
 }
 
