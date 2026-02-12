@@ -42,7 +42,7 @@ export async function boot() {
 
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-  const vibes = ['a mass of open browser tabs', 'the void', 'localhost', 'somewhere with wifi', 'the cloud (not that one)', '127.0.0.1'];
+  const vibes = ['a mass of open browser tabs', 'the void', 'localhost', 'somewhere with wifi', '127.0.0.1'];
   const vibe = vibes[Math.floor(Math.random() * vibes.length)];
 
   // ASCII banner
