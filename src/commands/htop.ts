@@ -9,7 +9,7 @@ export function cmdHtop(args: string, ctx: CommandContext): string {
 <span class="tc-yellow">  777 ryan      20   0  128.0m  32.0m  45.3  2.0  6666+ ${click('sunset-villas', 'cat projects/sunset-villas', 'tc-link-inline')}</span>
 <span class="tc-yellow">    2 ryan      20   0   64.0m  16.0m  99.9  1.0  ∞     coffee-daemon</span>
 <span class="tc-muted">    3 ryan      20   0   32.0m   8.0m  30.0  0.5  4444+ dog-petting-service</span>
-<span class="tc-muted">    4 ryan      20   0   16.0m   4.0m  15.0  0.2  3333+ isp-argument-handler</span>
+<span class="tc-muted">    4 ryan      20   0   16.0m   4.0m  15.0  0.2  3333+ 3d-print-slicer</span>
 <span class="tc-red">    5 ryan      20   0    8.0m   2.0m   0.0  0.1     0  sleeping [SUSPENDED]</span>
 
 <span class="tc-muted">Tasks: 8 total, 5 running, 2 sleeping, 1 permanently suspended
