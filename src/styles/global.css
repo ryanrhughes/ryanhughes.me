@@ -134,6 +134,23 @@ html, body {
   margin-left: 0.75ch;
 }
 
+/* Omarchy icon font */
+@font-face {
+  font-family: 'Omarchy';
+  src: url('/fonts/omarchy.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.omarchy-icon {
+  font-family: 'Omarchy', var(--font-mono);
+  font-style: normal;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 /* Nerd Font icons */
 .nf {
   font-family: 'Symbols Nerd Font', var(--font-mono);
