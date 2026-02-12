@@ -351,6 +351,50 @@ export function executeCommand(raw: string) {
   const args = cmd.substring(parts[0].length).trim();
   const ctx = getContext();
 
+  // Dramatic rm -rf animation
+  if (command === 'rm' && args.includes('-rf')) {
+    inputEl.value = '';
+    resizeInput();
+    inputArea.style.display = 'none';
+    (async () => {
+      const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+      appendOutput(`<span class="tc-red tc-bold">rm: initiating recursive force delete...</span>`);
+      await sleep(800);
+      appendOutput(`<span class="tc-red">destroying /home/ryan/projects/oodle...</span>`);
+      await sleep(400);
+      appendOutput(`<span class="tc-red">destroying /home/ryan/projects/third-helix...</span>`);
+      await sleep(400);
+      appendOutput(`<span class="tc-red">destroying /home/ryan/projects/omarchy...</span>`);
+      await sleep(400);
+      appendOutput(`<span class="tc-red">destroying /home/ryan/.secrets...</span>`);
+      await sleep(300);
+      appendOutput(`<span class="tc-red">destroying /home/ryan/.ssh/...</span>`);
+      await sleep(300);
+      appendOutput(`<span class="tc-red tc-bold">⚠  WARNING: DELETING SYSTEM FILES</span>`);
+      await sleep(600);
+      appendOutput(`<span class="tc-red">destroying /boot/...</span>`);
+      await sleep(300);
+      appendOutput(`<span class="tc-red">destroying /etc/...</span>`);
+      await sleep(400);
+      appendOutput(`<span class="tc-red tc-bold">☠  KERNEL PANIC — NOT SYNCING</span>`);
+      await sleep(1200);
+      // Screen goes "black"
+      const outputEl = document.getElementById('terminal-output')!;
+      outputEl.innerHTML = '';
+      await sleep(1500);
+      appendOutput(`<span class="tc-green tc-bold">...just kidding.</span>`);
+      await sleep(800);
+      appendOutput(`<span class="tc-muted">Like I'd let you do that in a browser.</span>`);
+      await sleep(500);
+      lastCmdError = true;
+      updatePrompt();
+      inputArea.style.display = 'flex';
+      inputEl.focus();
+      scrollToBottom();
+    })();
+    return;
+  }
+
   const output = executeSingle(command, args, ctx);
   if (output) appendOutput(output);
   updatePrompt();
