@@ -19,7 +19,7 @@ export function cmdNeofetch(args: string, ctx: CommandContext): string {
 <span class="tc-cyan nf">&#xf124;</span> Fort Lauderdale, FL
 <span class="tc-cyan nf">&#xf0b1;</span> Partner &amp; CIO @ ${click('Oodle', 'cat projects/oodle', 'tc-link-inline')}
 <span class="tc-cyan nf">&#xf0ad;</span> ${click('Third Helix', 'cat projects/third-helix', 'tc-link-inline')} (co-founder)
-<img src="/ryanhughes/omarchy-icon.png" class="tc-img-icon" alt="" /> ${click('Omarchy', 'cat projects/omarchy', 'tc-link-inline')} (core contributor)
+<span class="tc-cyan nf">&#xf303;</span> ${click('Omarchy', 'cat projects/omarchy', 'tc-link-inline')} (core contributor)
 <span class="tc-cyan nf">&#xf015;</span> ${click('Sunset Villas', 'cat projects/sunset-villas', 'tc-link-inline')} (co-owner)
 <span class="tc-muted">─── Stack ───</span>
 <span class="tc-cyan nf">&#xf0c2;</span> Cloudflare, Google
@@ -34,7 +34,7 @@ export function cmdNeofetch(args: string, ctx: CommandContext): string {
 <span class="tc-cyan"> 8 8888    \`88.     8 8888        8 </span>   <span class="tc-cyan nf">&#xf124;</span> Fort Lauderdale, FL
 <span class="tc-cyan"> 8 8888     \`88     8 8888        8 </span>   <span class="tc-cyan nf">&#xf0b1;</span> Partner &amp; CIO @ ${click('Oodle', 'cat projects/oodle', 'tc-link-inline')}
 <span class="tc-cyan"> 8 8888     ,88     8 8888        8 </span>   <span class="tc-cyan nf">&#xf0ad;</span> ${click('Third Helix', 'cat projects/third-helix', 'tc-link-inline')} (co-founder)
-<span class="tc-cyan"> 8 8888.   ,88'     8 8888        8 </span>   <img src="/ryanhughes/omarchy-icon.png" class="tc-img-icon" alt="" /> ${click('Omarchy', 'cat projects/omarchy', 'tc-link-inline')} (core contributor)
+<span class="tc-cyan"> 8 8888.   ,88'     8 8888        8 </span>   <span class="tc-cyan nf">&#xf303;</span> ${click('Omarchy', 'cat projects/omarchy', 'tc-link-inline')} (core contributor)
 <span class="tc-cyan"> 8 888888888P'      8 8888        8 </span>   <span class="tc-cyan nf">&#xf015;</span> ${click('Sunset Villas', 'cat projects/sunset-villas', 'tc-link-inline')} (co-owner)
 <span class="tc-cyan"> 8 8888\`8b          8 8888888888888 </span>   <span class="tc-muted">─── Stack ───</span>
 <span class="tc-cyan"> 8 8888 \`8b.        8 8888        8 </span>   <span class="tc-cyan nf">&#xf0c2;</span> Cloudflare, Google
