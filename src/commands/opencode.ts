@@ -2,7 +2,7 @@ import type { CommandContext } from '../terminal/types';
 
 export function cmdOpencode(_args: string, _ctx: CommandContext): string {
   return `<img src="/ryanhughes/opencode-logo.svg" alt="opencode" style="height:3.5em;margin:0.5em 0 0 1em" />
-  <span class="tc-green">The best TUI harness for AI coding.</span>
+  <span class="tc-green">The open source AI coding agent.</span>
   <span class="tc-muted">By the Anomaly team. Open source. Runs everywhere.</span>
 
   <span class="tc-label">Why I use it:</span>
