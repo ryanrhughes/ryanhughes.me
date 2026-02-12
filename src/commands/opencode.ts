@@ -1,7 +1,7 @@
 import type { CommandContext } from '../terminal/types';
 
 export function cmdOpencode(_args: string, _ctx: CommandContext): string {
-  return `<img src="/ryanhughes/opencode-logo.jpg" alt="opencode" style="height:3.5em;margin:0.5em 0;image-rendering:pixelated;filter:brightness(2.5) contrast(1.2)" />
+  return `<img src="/ryanhughes/opencode-logo.svg" alt="opencode" style="height:3.5em;margin:0.5em 0" />
 
   <span class="tc-green">The terminal-native AI coding agent.</span>
   <span class="tc-muted">By the SST team. Open source. Runs everywhere.</span>
