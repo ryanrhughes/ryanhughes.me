@@ -1,4 +1,5 @@
 import type { FSTree } from './types';
+import { buildEpisodeHtml, buildPodcastReadme, type PodcastData } from './podcast';
 
 // Import all .html files from src/filesystem/ at build time
 const htmlModules = import.meta.glob('/src/filesystem/**/*.html', { query: '?raw', import: 'default', eager: true });
@@ -43,6 +44,36 @@ export function buildFilesystem(): FilesystemData {
     '~': { _type: 'dir' } as any,
   };
   const fileContents: Record<string, string> = {};
+
+  // Inject podcast data if available
+  const podcastEl = document.getElementById('podcast-data');
+  if (podcastEl) {
+    try {
+      const podcastData: PodcastData = JSON.parse(podcastEl.textContent || '');
+      if (podcastData && podcastData.episodes.length > 0) {
+        // Create ~/podcast/ directory
+        fs['~']['podcast'] = { _type: 'dir' } as any;
+        fs['~/podcast'] = { _type: 'dir' } as any;
+
+        // Build readme with full description + episode index
+        const readmeHtml = buildPodcastReadme(podcastData);
+        fs['~/podcast']['readme'] = { _type: 'file', icon: '\uf02d' } as any;
+        fileContents['~/podcast/readme'] = expandBanners(readmeHtml);
+
+        for (let i = 0; i < podcastData.episodes.length; i++) {
+          const ep = podcastData.episodes[i];
+          const prev = i > 0 ? podcastData.episodes[i - 1] : null;
+          const next = i < podcastData.episodes.length - 1 ? podcastData.episodes[i + 1] : null;
+
+          fs['~/podcast'][ep.slug] = { _type: 'file', icon: '\uf001' } as any;
+          const html = buildEpisodeHtml(ep, prev, next);
+          fileContents[`~/podcast/${ep.slug}`] = expandBanners(html);
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to parse podcast data:', e);
+    }
+  }
 
   for (const [modulePath, raw] of Object.entries(htmlModules)) {
     // modulePath: /src/filesystem/projects/oodle.html

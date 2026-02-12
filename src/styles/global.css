@@ -469,3 +469,85 @@ html, body {
     margin-right: -0.75rem;
   }
 }
+
+/* ── Podcast Player ── */
+.podcast-player {
+  width: min(500px, 100%);
+  margin: 0.5em 0;
+  background: var(--color-tn-bg-dark);
+  border: 1px solid var(--color-tn-selection);
+  border-radius: 0;
+  padding: 0.6rem 1rem;
+  line-height: 1;
+}
+.pp-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+}
+.pp-play, .pp-mute {
+  background: none;
+  border: none;
+  color: var(--color-tn-cyan);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0;
+  line-height: 1;
+  font-family: inherit;
+  transition: color 0.15s;
+}
+.pp-play:hover, .pp-mute:hover {
+  color: var(--color-tn-blue);
+}
+.pp-time {
+  color: var(--color-tn-comment);
+  font-size: 0.8rem;
+  white-space: nowrap;
+  min-width: 7em;
+}
+.pp-current {
+  color: var(--color-tn-fg);
+}
+.pp-bar-wrap {
+  flex: 1;
+  cursor: pointer;
+  height: 16px;
+  display: flex;
+  align-items: center;
+}
+.pp-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--color-tn-selection);
+  border-radius: 2px;
+  position: relative;
+  transition: height 0.15s;
+}
+.pp-progress {
+  height: 100%;
+  background: var(--color-tn-cyan);
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+.pp-knob {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-tn-cyan);
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 6px rgba(125, 207, 255, 0.5);
+  transition: left 0.1s linear;
+}
+.pp-bar-wrap:hover .pp-bar {
+  height: 6px;
+}
+.pp-bar-wrap:hover .pp-knob {
+  width: 14px;
+  height: 14px;
+}

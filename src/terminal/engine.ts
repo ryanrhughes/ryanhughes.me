@@ -103,13 +103,22 @@ function cmdLs(args: string, forceAll = false): string {
 
   const entries = fs[resolved];
 
+  // Sort: dirs first (alpha), then files (alpha), skip _type and hidden unless -a
+  const sorted = Object.entries(entries)
+    .filter(([name]) => name !== '_type')
+    .filter(([name]) => hasA || !name.startsWith('.'))
+    .sort(([aName, aInfo], [bName, bInfo]) => {
+      const aDir = (aInfo as any)._type === 'dir' ? 0 : 1;
+      const bDir = (bInfo as any)._type === 'dir' ? 0 : 1;
+      if (aDir !== bDir) return aDir - bDir;
+      return aName.localeCompare(bName);
+    });
+
   if (!hasL) {
     // Simple mode
     const parts: string[] = [];
     if (hasA) parts.push('<span class="tc-muted">.  ..</span>');
-    for (const [name, info] of Object.entries(entries)) {
-      if (name === '_type') continue;
-      if (name.startsWith('.') && !hasA) continue;
+    for (const [name, info] of sorted) {
       if ((info as any)._type === 'dir') {
         parts.push(dirClick(name, resolved === '~' ? name : resolved + '/' + name));
       } else {
@@ -153,9 +162,7 @@ function cmdLs(args: string, forceAll = false): string {
     lines.push(makeLine('drwxr-xr-x', '-', '<span class="tc-icon tc-dir-icon">\uf07b</span> <span class="tc-muted">..</span>'));
   }
 
-  for (const [name, info] of Object.entries(entries)) {
-    if (name === '_type') continue;
-    if (name.startsWith('.') && !hasA) continue;
+  for (const [name, info] of sorted) {
     const isDir = (info as any)._type === 'dir';
     const perms = isDir ? 'drwxr-xr-x' : '-rw-r--r--';
     const size = isDir ? '-' : fakeSize();

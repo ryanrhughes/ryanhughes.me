@@ -68,6 +68,8 @@ export function appendOutput(html: string) {
   div.querySelectorAll('img').forEach(img => {
     img.addEventListener('load', () => scrollToBottom());
   });
+  // Init podcast players
+  div.querySelectorAll('.podcast-player').forEach(initPodcastPlayer);
   scrollToBottom();
 }
 
@@ -90,6 +92,78 @@ export function scrollToBottom() {
   setTimeout(() => {
     terminalEl.scrollTop = terminalEl.scrollHeight;
   }, 200);
+}
+
+function formatTime(s: number): string {
+  if (isNaN(s)) return '0:00';
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${sec.toString().padStart(2, '0')}`;
+}
+
+function initPodcastPlayer(el: Element) {
+  const container = el as HTMLElement;
+  const src = container.dataset.src;
+  if (!src) return;
+
+  const playBtn = container.querySelector('.pp-play') as HTMLElement;
+  const muteBtn = container.querySelector('.pp-mute') as HTMLElement;
+  const progress = container.querySelector('.pp-progress') as HTMLElement;
+  const knob = container.querySelector('.pp-knob') as HTMLElement;
+  const currentTime = container.querySelector('.pp-current') as HTMLElement;
+  const durationEl = container.querySelector('.pp-duration') as HTMLElement;
+  const barWrap = container.querySelector('.pp-bar-wrap') as HTMLElement;
+
+  let audio: HTMLAudioElement | null = null;
+  let loaded = false;
+
+  function ensureAudio() {
+    if (!audio) {
+      audio = new Audio(src);
+      audio.preload = 'metadata';
+      audio.addEventListener('loadedmetadata', () => {
+        durationEl.textContent = formatTime(audio!.duration);
+      });
+      audio.addEventListener('timeupdate', () => {
+        const pct = (audio!.currentTime / audio!.duration) * 100 || 0;
+        progress.style.width = pct + '%';
+        knob.style.left = pct + '%';
+        currentTime.textContent = formatTime(audio!.currentTime);
+      });
+      audio.addEventListener('ended', () => {
+        playBtn.innerHTML = '&#xf040a;';
+        progress.style.width = '0%';
+        knob.style.left = '0%';
+      });
+    }
+    return audio;
+  }
+
+  playBtn.addEventListener('click', () => {
+    const a = ensureAudio();
+    if (a.paused) {
+      a.play();
+      playBtn.innerHTML = '&#xf03e4;';
+    } else {
+      a.pause();
+      playBtn.innerHTML = '&#xf040a;';
+    }
+  });
+
+  muteBtn.addEventListener('click', () => {
+    const a = ensureAudio();
+    a.muted = !a.muted;
+    muteBtn.innerHTML = a.muted ? '&#xf0581;' : '&#xf057e;';
+  });
+
+  barWrap.addEventListener('click', (e: MouseEvent) => {
+    const a = ensureAudio();
+    const rect = barWrap.getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    if (a.duration) {
+      a.currentTime = pct * a.duration;
+    }
+  });
 }
 
 export function clearOutput() {

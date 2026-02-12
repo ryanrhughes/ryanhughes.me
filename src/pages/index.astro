@@ -1,6 +1,108 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import '../styles/global.css';
+
+// Fetch podcast RSS at build time
+let podcastJson = 'null';
+try {
+  const res = await fetch('https://api.riverside.fm/hosting/okuCkBP9.rss');
+  if (res.ok) {
+    const xml = await res.text();
+
+    function xmlText(source: string, tag: string): string {
+      const cdataRe = new RegExp(`<${tag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]></${tag}>`, 'i');
+      const cdataMatch = source.match(cdataRe);
+      if (cdataMatch) return cdataMatch[1];
+      const re = new RegExp(`<${tag}[^>]*>(.*?)</${tag}>`, 'is');
+      const match = source.match(re);
+      return match ? match[1].trim() : '';
+    }
+
+    function xmlAttr(source: string, tag: string, attr: string): string {
+      const re = new RegExp(`<${tag}[^>]*\\s${attr}="([^"]*)"`, 'i');
+      const match = source.match(re);
+      return match ? match[1] : '';
+    }
+
+    function slugify(title: string): string {
+      return title
+        .toLowerCase()
+        .replace(/^episode\s*\d+\s*[-–—]\s*/i, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')
+        .slice(0, 50)
+        .replace(/-$/, '');
+    }
+
+    function stripHtml(html: string): string {
+      return html.replace(/<[^>]*>/g, '').trim();
+    }
+
+    function formatDate(dateStr: string): string {
+      const d = new Date(dateStr);
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+    }
+
+    function formatDuration(dur: string): string {
+      const parts = dur.split(':').map(Number);
+      if (parts.length === 3) {
+        const [h, m] = parts;
+        return h > 0 ? `${h}h ${m}m` : `${m} min`;
+      }
+      return dur;
+    }
+
+    function parseChapters(html: string): { time: string; title: string }[] {
+      const chapters: { time: string; title: string }[] = [];
+      const regex = /(\d{1,2}:\d{2}(?::\d{2})?)\s+(.+?)(?:<\/|$)/g;
+      let m;
+      while ((m = regex.exec(html)) !== null) {
+        chapters.push({ time: m[1], title: m[2].replace(/<[^>]*>/g, '').trim() });
+      }
+      return chapters;
+    }
+
+    function extractSummary(desc: string): string {
+      const summaryMatch = desc.match(/<b>Summary<\/b><\/p><p>(.*?)<\/p>/s);
+      if (summaryMatch) return stripHtml(summaryMatch[1]);
+      const firstP = desc.match(/<p>(?!<b>)(.*?)<\/p>/s);
+      if (firstP) return stripHtml(firstP[1]);
+      return stripHtml(desc).slice(0, 300);
+    }
+
+    const channelTitle = xmlText(xml, 'title');
+    const channelDesc = stripHtml(xmlText(xml, 'description')).split('.').slice(0, 2).join('.') + '.';
+    const author = xmlText(xml, 'itunes:author');
+    const imageUrl = xmlAttr(xml, 'itunes:image', 'href');
+
+    const items = xml.split('<item>').slice(1);
+    const episodes = items.map(item => {
+      const title = xmlText(item, 'title');
+      const desc = xmlText(item, 'description');
+      const pubDate = xmlText(item, 'pubDate');
+      const duration = xmlText(item, 'itunes:duration');
+      const audioUrl = xmlAttr(item, 'enclosure', 'url');
+      const epNumber = Number(xmlText(item, 'itunes:episode')) || 0;
+
+      return {
+        title,
+        slug: slugify(title),
+        number: epNumber,
+        description: desc,
+        summary: extractSummary(desc),
+        chapters: parseChapters(desc),
+        pubDate: formatDate(pubDate),
+        duration: formatDuration(duration),
+        audioUrl,
+      };
+    }).sort((a, b) => a.number - b.number);
+
+    podcastJson = JSON.stringify({ title: channelTitle, description: channelDesc, author, imageUrl, episodes });
+  }
+} catch (e) {
+  console.error('Podcast RSS fetch failed:', e);
+}
 ---
 
 <Layout title="Ryan Hughes — Terminal">
@@ -33,6 +135,7 @@ import '../styles/global.css';
     <button class="mobile-cmd" data-cmd="cat connect/*">connect</button>
   </div>
 
+  <script id="podcast-data" type="application/json" set:html={podcastJson} />
   <script>
     import { boot } from '../terminal/boot';
     boot();
