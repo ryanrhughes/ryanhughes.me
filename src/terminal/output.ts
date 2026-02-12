@@ -45,6 +45,11 @@ export function fileClick(name: string, path: string, icon?: string): string {
   if (i.startsWith('/') || i.startsWith('http')) {
     return `<img src="${i}" class="tc-img-icon" alt="" /> ` + click(name, `cat ${path}`, 'tc-file');
   }
+  // Support custom font icons (format: "font:codepoint" e.g. "omarchy:e900")
+  if (i.includes(':')) {
+    const [fontClass, codepoint] = i.split(':');
+    return `<span class="tc-icon tc-file-icon ${fontClass}-icon">&#x${codepoint};</span> ` + click(name, `cat ${path}`, 'tc-file');
+  }
   return `<span class="tc-icon tc-file-icon">${i}</span> ` + click(name, `cat ${path}`, 'tc-file');
 }
 
