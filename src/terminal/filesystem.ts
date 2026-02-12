@@ -8,14 +8,12 @@ interface FilesystemData {
   fileContents: Record<string, string>;
 }
 
-function makeBanner(text: string, style: 'double' | 'single' = 'double'): string {
-  const cls = style === 'single' ? 'tc-banner tc-banner-single' : 'tc-banner';
-  return `<span class="${cls}">${text}</span>`;
+function makeBanner(text: string): string {
+  return `<span class="tc-banner">${text}</span>`;
 }
 
 function expandBanners(html: string): string {
-  return html.replace(/<banner(?:\s+style="(single|double)")?>(.*?)<\/banner>/g,
-    (_, style, text) => makeBanner(text.trim(), (style as any) || 'double'));
+  return html.replace(/<banner>(.*?)<\/banner>/g, (_, text) => makeBanner(text.trim()));
 }
 
 function parseMetadata(raw: string): { content: string; url?: string } {

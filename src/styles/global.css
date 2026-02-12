@@ -274,10 +274,6 @@ html, body {
   letter-spacing: 0.03em;
 }
 
-.tc-banner-single {
-  border-style: solid;
-  border-width: 1px;
-}
 
 .tc-label {
   color: var(--color-tn-blue);
