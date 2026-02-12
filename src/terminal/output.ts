@@ -35,7 +35,8 @@ export function getFileIcon(name: string, customIcon?: string): string {
 }
 
 export function dirClick(name: string, path: string): string {
-  return `<span class="tc-icon tc-dir-icon">${DIR_ICON}</span> ` + click(name + '/', `cd ${path}`, 'tc-dir');
+  const absPath = path.startsWith('~') ? path : `~/${path}`;
+  return `<span class="tc-icon tc-dir-icon">${DIR_ICON}</span> ` + click(name + '/', `cd ${absPath} && ls`, 'tc-dir');
 }
 
 export function fileClick(name: string, path: string, icon?: string): string {

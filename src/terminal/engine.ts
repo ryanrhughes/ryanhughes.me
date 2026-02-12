@@ -273,10 +273,73 @@ function cmdOpen(args: string): string {
   return cmdCat(args);
 }
 
+// ── Single command dispatch ──
+function executeSingle(command: string, args: string, ctx: CommandContext): string {
+  switch (command) {
+    case 'help': return cmdHelp(args, ctx);
+    case 'ls': return cmdLs(args);
+    case 'll': return cmdLs(args, true);
+    case 'lt': return cmdTree(args);
+    case 'tree': return cmdTree(args);
+    case 'opencode': case 'c': return cmdOpencode(args, ctx);
+    case 'cd': return cmdCd(args);
+    case 'cat': return cmdCat(args);
+    case 'open': return cmdOpen(args);
+    case 'man': {
+      const result = cmdMan(args, ctx);
+      if (result.error) lastCmdError = true;
+      return result.output;
+    }
+    case 'neofetch': return cmdNeofetch(args, ctx);
+    case 'htop': return cmdHtop(args, ctx);
+    case 'history': return cmdHistory(args, ctx);
+    case 'uptime': return cmdUptime(args, ctx);
+    case 'cowsay': return cmdCowsay(args, ctx);
+    case 'clear': clearOutput(); return '';
+    default: {
+      const builtin = cmdBuiltin(command, args, ctx);
+      if (builtin) {
+        if (builtin.error) lastCmdError = true;
+        return builtin.output;
+      }
+      lastCmdError = true;
+      const responses = [
+        `<span class="tc-red">zsh: command not found: ${escapeHtml(command)}</span>`,
+        `<span class="tc-red">${escapeHtml(command)}: not found.</span> <span class="tc-muted">Try ${click('help', 'help', 'tc-link-inline')}</span>`,
+        `<span class="tc-red">${escapeHtml(command)}? Never heard of her.</span>`,
+      ];
+      return responses[commandHistory.length % responses.length];
+    }
+  }
+}
+
 // ── Execute command ──
 export function executeCommand(raw: string) {
   const cmd = raw.trim();
   if (!cmd) return;
+
+  // Support && chaining
+  if (cmd.includes('&&')) {
+    const cmds = cmd.split('&&').map(c => c.trim()).filter(Boolean);
+    appendCommandLine(getPromptHTML(), cmd);
+    commandHistory.push(cmd);
+    historyIndex = commandHistory.length;
+    for (const sub of cmds) {
+      lastCmdError = false;
+      const subParts = sub.split(/\s+/);
+      const subCmd = subParts[0].toLowerCase();
+      const subArgs = sub.substring(subParts[0].length).trim();
+      const ctx = getContext();
+      let output = executeSingle(subCmd, subArgs, ctx);
+      if (output) appendOutput(output);
+      if (lastCmdError) break;
+    }
+    updatePrompt();
+    inputEl.value = '';
+    resizeInput();
+    inputEl.focus();
+    return;
+  }
 
   lastCmdError = false;
   appendCommandLine(getPromptHTML(), cmd);
@@ -288,47 +351,7 @@ export function executeCommand(raw: string) {
   const args = cmd.substring(parts[0].length).trim();
   const ctx = getContext();
 
-  let output = '';
-
-  switch (command) {
-    case 'help': output = cmdHelp(args, ctx); break;
-    case 'ls': output = cmdLs(args); break;
-    case 'll': output = cmdLs(args, true); break;
-    case 'lt': output = cmdTree(args); break;
-    case 'tree': output = cmdTree(args); break;
-    case 'opencode': case 'c': output = cmdOpencode(args, ctx); break;
-    case 'cd': output = cmdCd(args); break;
-    case 'cat': output = cmdCat(args); break;
-    case 'open': output = cmdOpen(args); break;
-    case 'man': {
-      const result = cmdMan(args, ctx);
-      output = result.output;
-      if (result.error) lastCmdError = true;
-      break;
-    }
-    case 'neofetch': output = cmdNeofetch(args, ctx); break;
-    case 'htop': output = cmdHtop(args, ctx); break;
-    case 'history': output = cmdHistory(args, ctx); break;
-    case 'uptime': output = cmdUptime(args, ctx); break;
-    case 'cowsay': output = cmdCowsay(args, ctx); break;
-    case 'clear': clearOutput(); inputEl.value = ''; updatePrompt(); return;
-    default: {
-      const builtin = cmdBuiltin(command, args, ctx);
-      if (builtin) {
-        output = builtin.output;
-        if (builtin.error) lastCmdError = true;
-      } else {
-        lastCmdError = true;
-        const responses = [
-          `<span class="tc-red">zsh: command not found: ${escapeHtml(command)}</span>`,
-          `<span class="tc-red">${escapeHtml(command)}: not found.</span> <span class="tc-muted">Try ${click('help', 'help', 'tc-link-inline')}</span>`,
-          `<span class="tc-red">${escapeHtml(command)}? Never heard of her.</span>`,
-        ];
-        output = responses[commandHistory.length % responses.length];
-      }
-    }
-  }
-
+  const output = executeSingle(command, args, ctx);
   if (output) appendOutput(output);
   updatePrompt();
   inputEl.value = '';
