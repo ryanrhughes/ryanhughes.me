@@ -69,6 +69,7 @@ html, body {
 .output-block {
   margin-bottom: 0.25rem;
   white-space: pre-wrap;
+  max-width: 80ch;
 }
 
 .command-echo {
