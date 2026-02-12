@@ -19,7 +19,7 @@ export function cmdMan(args: string, ctx: CommandContext): { output: string; err
 
 <span class="tc-yellow">OPTIONS</span>
        <span class="tc-white">--coffee</span>     Required.
-       <span class="tc-white">--dogs</span>       ${click('Remus', 'cat about/dogs/remus', 'tc-link-inline')}, ${click('Arthas José', 'cat about/dogs/arthas', 'tc-link-inline')} (supermutt)
+       <span class="tc-white">--dogs</span>       ${click('Remus', 'cat about/dogs/remus', 'tc-link-inline')} (beagle), ${click('Arthas José', 'cat about/dogs/arthas', 'tc-link-inline')} (supermutt)
        <span class="tc-white">--verbose</span>    Has opinions. Will share them.
        <span class="tc-white">--edge</span>       Runs everything on master/edge/beta. Stable is boring.
 
