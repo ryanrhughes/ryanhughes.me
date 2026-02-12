@@ -1,16 +1,7 @@
 import type { CommandContext } from '../terminal/types';
-import { escapeHtml } from '../terminal/output';
 
 export function cmdOpencode(_args: string, _ctx: CommandContext): string {
-  const ascii = escapeHtml(
-`   ___                    ____          _
-  / _ \\ _ __   ___ _ __  / ___|___   __| | ___
- | | | | '_ \\ / _ \\ '_ \\| |   / _ \\ / _\` |/ _ \\
- | |_| | |_) |  __/ | | | |__| (_) | (_| |  __/
-  \\___/| .__/ \\___|_| |_|\\____\\___/ \\__,_|\\___|
-       |_|`);
-
-  return `<span class="tc-cyan">${ascii}</span>
+  return `<img src="/ryanhughes/opencode-logo.jpg" alt="opencode" style="height:3.5em;margin:0.5em 0;image-rendering:pixelated;filter:brightness(2.5) contrast(1.2)" />
 
   <span class="tc-green">The terminal-native AI coding agent.</span>
   <span class="tc-muted">By the SST team. Open source. Runs everywhere.</span>
