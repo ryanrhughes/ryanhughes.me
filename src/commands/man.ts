@@ -15,7 +15,7 @@ export function cmdMan(args: string, ctx: CommandContext): { output: string; err
        Partner & CIO at ${click('Oodle', 'cat projects/oodle', 'tc-link-inline')}. Co-founder of ${click('Third Helix', 'cat projects/third-helix', 'tc-link-inline')}.
        Core contributor to ${click('Omarchy', 'cat projects/omarchy', 'tc-link-inline')}. Runs ${click('luxury vacation rentals', 'cat projects/sunset-villas', 'tc-link-inline')} near
        Disney & Universal. Lives in Fort Lauderdale with his wife
-       and two dogs who are better than your dogs.
+       and two dogs.
 
 <span class="tc-yellow">OPTIONS</span>
        <span class="tc-white">--coffee</span>     Required.
