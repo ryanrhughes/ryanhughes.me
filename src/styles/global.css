@@ -72,6 +72,12 @@ html, body {
   max-width: 80ch;
 }
 
+/* Indented content block — preserves indent on wrap */
+.tc-indent {
+  display: block;
+  padding-left: 2ch;
+}
+
 .command-echo {
   color: var(--color-tn-fg);
 }
