@@ -13,5 +13,5 @@ export function cmdHtop(args: string, ctx: CommandContext): string {
 <span class="tc-red">    5 ryan      20   0    8.0m   2.0m   0.0  0.1     0  sleeping [SUSPENDED]</span>
 
 <span class="tc-muted">Tasks: 8 total, 5 running, 2 sleeping, 1 permanently suspended
-Load average: too damn high</span>`;
+Load average: just right</span>`;
 }
