@@ -143,6 +143,18 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.tc-icon {
+  font-family: 'Symbols Nerd Font', var(--font-mono);
+  font-style: normal;
+  font-weight: 400;
+  display: inline-block;
+  width: 1.5em;
+  text-align: center;
+}
+
+.tc-dir-icon { color: var(--color-tn-blue); }
+.tc-file-icon { color: var(--color-tn-green); }
+
 /* Cursor */
 @keyframes blink {
   0%, 50% { opacity: 1; }

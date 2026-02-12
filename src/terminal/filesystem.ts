@@ -16,12 +16,26 @@ function expandBanners(html: string): string {
   return html.replace(/<banner>(.*?)<\/banner>/g, (_, text) => makeBanner(text.trim()));
 }
 
-function parseMetadata(raw: string): { content: string; url?: string } {
-  const urlMatch = raw.match(/^<!--\s*url:\s*(.+?)\s*-->\n?/);
-  if (urlMatch) {
-    return { content: expandBanners(raw.slice(urlMatch[0].length)), url: urlMatch[1] };
+interface FileMetadata {
+  content: string;
+  url?: string;
+  icon?: string;
+}
+
+function parseMetadata(raw: string): FileMetadata {
+  const meta: FileMetadata = { content: raw };
+  // Parse frontmatter comments: <!-- key: value -->
+  let text = raw;
+  while (true) {
+    const m = text.match(/^<!--\s*(\w+):\s*(.+?)\s*-->\n?/);
+    if (!m) break;
+    const [full, key, val] = m;
+    if (key === 'url') meta.url = val;
+    else if (key === 'icon') meta.icon = val;
+    text = text.slice(full.length);
   }
-  return { content: expandBanners(raw) };
+  meta.content = expandBanners(text);
+  return meta;
 }
 
 export function buildFilesystem(): FilesystemData {
@@ -59,12 +73,13 @@ export function buildFilesystem(): FilesystemData {
     }
 
     // Add file entry
-    const { content, url } = parseMetadata(raw as string);
+    const { content, url, icon } = parseMetadata(raw as string);
     const fullPath = currentPath === '~' ? `~/${fileName}` : `${currentPath}/${fileName}`;
 
     if (!fs[currentPath]) fs[currentPath] = { _type: 'dir' } as any;
     const fileEntry: any = { _type: 'file' };
     if (url) fileEntry.url = url;
+    if (icon) fileEntry.icon = icon;
     fs[currentPath][fileName] = fileEntry;
 
     fileContents[fullPath] = content;

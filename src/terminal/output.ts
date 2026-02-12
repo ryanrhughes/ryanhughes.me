@@ -20,12 +20,27 @@ export function click(label: string, cmd: string, cls = ''): string {
   return `<span class="tc-click ${cls}" data-cmd="${escapeHtml(cmd)}">${label}</span>`;
 }
 
-export function dirClick(name: string, path: string): string {
-  return click(name + '/', `cd ${path}`, 'tc-dir');
+// Nerd Font icons
+const DIR_ICON = '\uf07b';      // 
+const FILE_ICONS: Record<string, string> = {
+  '.txt': '\uf15c',             // 
+  '.md':  '\ue609',             // 
+};
+const DEFAULT_FILE_ICON = '\uf016'; // 
+
+export function getFileIcon(name: string, customIcon?: string): string {
+  if (customIcon) return customIcon;
+  const ext = name.includes('.') ? name.slice(name.lastIndexOf('.')) : '';
+  return FILE_ICONS[ext] || DEFAULT_FILE_ICON;
 }
 
-export function fileClick(name: string, path: string): string {
-  return click(name, `cat ${path}`, 'tc-file');
+export function dirClick(name: string, path: string): string {
+  return `<span class="tc-icon tc-dir-icon">${DIR_ICON}</span> ` + click(name + '/', `cd ${path}`, 'tc-dir');
+}
+
+export function fileClick(name: string, path: string, icon?: string): string {
+  const i = getFileIcon(name, icon);
+  return `<span class="tc-icon tc-file-icon">${i}</span> ` + click(name, `cat ${path}`, 'tc-file');
 }
 
 export function appendOutput(html: string) {

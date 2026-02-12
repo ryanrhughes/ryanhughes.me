@@ -112,7 +112,7 @@ function cmdLs(args: string, forceAll = false): string {
       if ((info as any)._type === 'dir') {
         parts.push(dirClick(name, resolved === '~' ? name : resolved + '/' + name));
       } else {
-        parts.push(fileClick(name, resolved === '~' ? name : resolved + '/' + name));
+        parts.push(fileClick(name, resolved === '~' ? name : resolved + '/' + name, (info as any).icon));
       }
     }
     return parts.join('  ');
@@ -142,7 +142,7 @@ function cmdLs(args: string, forceAll = false): string {
     const perms = isDir ? 'drwxr-xr-x' : '-rw-r--r--';
     const size = isDir ? '-' : fakeSize();
     const fullPath = resolved === '~' ? name : resolved + '/' + name;
-    const display = isDir ? dirClick(name, fullPath) : fileClick(name, fullPath);
+    const display = isDir ? dirClick(name, fullPath) : fileClick(name, fullPath, (info as any).icon);
     lines.push(makeLine(perms, size, display));
   }
 
@@ -174,7 +174,7 @@ function cmdTree(args: string): string {
         lines.push(`<span class="tc-muted">${prefix}${connector}</span>${dirClick(name, fullPath)}`);
         walk(fullPath, prefix + (isLast ? '    ' : '│   '));
       } else {
-        lines.push(`<span class="tc-muted">${prefix}${connector}</span>${fileClick(name, fullPath)}`);
+        lines.push(`<span class="tc-muted">${prefix}${connector}</span>${fileClick(name, fullPath, (info as any).icon)}`);
       }
     });
   }
@@ -246,7 +246,7 @@ function cmdCat(args: string): string {
       if ((info as any)._type === 'dir') {
         parts.push('  ' + dirClick(name, fullPath));
       } else {
-        parts.push('  ' + fileClick(name, fullPath));
+        parts.push('  ' + fileClick(name, fullPath, (info as any).icon));
       }
     }
     return parts.join('\n');
