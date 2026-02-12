@@ -1,0 +1,412 @@
+@import "tailwindcss";
+/* Nerd Font Symbols - loaded inline to ensure correct font URL resolution */
+
+@theme {
+  /* Tokyo Night palette */
+  --color-tn-bg: #1a1b26;
+  --color-tn-bg-dark: #16161e;
+  --color-tn-fg: #a9b1d6;
+  --color-tn-cyan: #7dcfff;
+  --color-tn-green: #9ece6a;
+  --color-tn-red: #f7768e;
+  --color-tn-yellow: #e0af68;
+  --color-tn-purple: #bb9af7;
+  --color-tn-blue: #7aa2f7;
+  --color-tn-orange: #ff9e64;
+  --color-tn-comment: #565f89;
+  --color-tn-selection: #33467c;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Symbols Nerd Font', monospace;
+}
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  background: var(--color-tn-bg);
+  color: var(--color-tn-fg);
+  font-family: var(--font-mono);
+  height: 100%;
+  overflow: hidden;
+}
+
+::selection {
+  background: var(--color-tn-selection);
+  color: white;
+}
+
+/* ── Full-screen Terminal ── */
+.terminal-fullscreen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1rem 1.25rem;
+  padding-bottom: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  z-index: 1;
+}
+
+@media (max-width: 640px) {
+  .terminal-fullscreen {
+    font-size: 12px;
+    padding: 0.5rem 0.75rem;
+    padding-bottom: 48px;
+  }
+}
+
+.terminal-output {
+  flex: 1;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.output-block {
+  margin-bottom: 0.25rem;
+  white-space: pre-wrap;
+}
+
+.command-echo {
+  color: var(--color-tn-fg);
+}
+
+.prompt-echo {
+  color: var(--color-tn-comment);
+}
+.prompt-echo .prompt-char {
+  color: var(--color-tn-cyan);
+  font-weight: 700;
+}
+
+/* ── Input Area ── */
+.terminal-input-area {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0.5rem 1.25rem 1rem 1.25rem;
+  margin-left: -1.25rem;
+  margin-right: -1.25rem;
+  position: sticky;
+  bottom: 0;
+  flex-shrink: 0;
+  background: var(--color-tn-bg, #1a1b26);
+  z-index: 10;
+}
+
+.prompt {
+  color: var(--color-tn-fg);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.prompt .prompt-path {
+  color: var(--color-tn-fg);
+}
+
+.prompt .prompt-char {
+  color: var(--color-tn-cyan);
+  font-weight: 700;
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.terminal-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--color-tn-fg);
+  font-family: var(--font-mono);
+  font-size: inherit;
+  width: 1ch;
+  min-width: 1ch;
+  flex: 0 0 auto;
+  caret-color: transparent;
+  margin-left: 0.75ch;
+}
+
+/* Nerd Font icons */
+.nf {
+  font-family: 'Symbols Nerd Font', var(--font-mono);
+  font-style: normal;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Cursor */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.cursor-blink {
+  color: var(--color-tn-cyan);
+  animation: blink 1s step-end infinite;
+  font-size: inherit;
+  line-height: 1;
+}
+
+/* ── CRT Overlay (subtle, atmospheric) ── */
+#crt-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  /* Very subtle scanlines */
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0, 0, 0, 0.06) 3px,
+    rgba(0, 0, 0, 0.06) 6px
+  );
+}
+
+#crt-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* Gentle vignette */
+  background: radial-gradient(
+    ellipse at center,
+    transparent 60%,
+    rgba(0, 0, 0, 0.25) 90%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
+  pointer-events: none;
+}
+
+#crt-overlay::after {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  opacity: 0.02;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  animation: grain 4s steps(8) infinite;
+}
+
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  12% { transform: translate(-5%, -10%); }
+  25% { transform: translate(-15%, 5%); }
+  37% { transform: translate(7%, -25%); }
+  50% { transform: translate(-5%, 25%); }
+  62% { transform: translate(-15%, 10%); }
+  75% { transform: translate(15%, 0%); }
+  87% { transform: translate(0%, 15%); }
+}
+
+/* ── Clickable Items ── */
+.tc-click {
+  color: var(--color-tn-cyan);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tc-click:hover {
+  color: #b4e1ff;
+  text-shadow: 0 0 8px rgba(125, 207, 255, 0.4);
+  text-decoration-style: solid;
+}
+
+.tc-cmd {
+  color: var(--color-tn-yellow);
+}
+.tc-cmd:hover {
+  color: #f0cf88;
+  text-shadow: 0 0 8px rgba(224, 175, 104, 0.4);
+}
+
+.tc-dir {
+  color: var(--color-tn-blue);
+}
+.tc-dir:hover {
+  text-shadow: 0 0 8px rgba(122, 162, 247, 0.4);
+}
+
+.tc-file {
+  color: var(--color-tn-green);
+}
+.tc-file:hover {
+  text-shadow: 0 0 8px rgba(158, 206, 106, 0.4);
+}
+
+.tc-link-inline {
+  color: var(--color-tn-cyan);
+}
+.tc-link-inline:hover {
+  color: #b4e1ff;
+  text-shadow: 0 0 8px rgba(125, 207, 255, 0.4);
+}
+
+/* ── Terminal Content Colors ── */
+.tc-header {
+  color: var(--color-tn-purple);
+  font-weight: bold;
+}
+
+.tc-label {
+  color: var(--color-tn-blue);
+  font-weight: 600;
+}
+
+.tc-accent {
+  color: var(--color-tn-cyan);
+}
+
+.tc-muted {
+  color: var(--color-tn-comment);
+}
+
+.tc-green {
+  color: var(--color-tn-green);
+}
+
+.tc-cerise, .tc-red {
+  color: var(--color-tn-red);
+}
+
+.tc-amber, .tc-yellow {
+  color: var(--color-tn-yellow);
+}
+
+.tc-azure, .tc-blue {
+  color: var(--color-tn-blue);
+}
+
+.tc-purple {
+  color: var(--color-tn-purple);
+}
+
+.tc-orange {
+  color: var(--color-tn-orange);
+}
+
+.tc-white {
+  color: #c0caf5;
+}
+
+.tc-bold {
+  font-weight: 700;
+}
+
+.tc-link {
+  color: var(--color-tn-cyan);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: all 0.15s;
+}
+
+.tc-link:hover {
+  color: #b4e1ff;
+  text-shadow: 0 0 8px rgba(125, 207, 255, 0.4);
+}
+
+/* ── Terminal Image Frame ── */
+.terminal-image-frame {
+  display: inline-block;
+  margin: 0.5rem 0;
+  padding: 4px;
+  border: 1px solid rgba(125, 207, 255, 0.2);
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(125, 207, 255, 0.05), inset 0 0 10px rgba(0, 0, 0, 0.3);
+  max-width: 300px;
+}
+
+.terminal-image-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: brightness(0.9) contrast(1.05) saturate(0.85);
+  border-radius: 2px;
+}
+
+.terminal-image-placeholder {
+  width: 280px;
+  max-width: 100%;
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--color-tn-purple);
+  background: rgba(187, 154, 247, 0.05);
+  border-radius: 2px;
+  font-size: 0.85em;
+}
+
+/* ── Mobile Command Bar ── */
+.mobile-command-bar {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  padding: 6px 8px;
+  background: rgba(22, 22, 30, 0.95);
+  border-top: 1px solid rgba(125, 207, 255, 0.1);
+  overflow-x: auto;
+  gap: 6px;
+  -webkit-overflow-scrolling: touch;
+  backdrop-filter: blur(8px);
+}
+
+@media (max-width: 640px) {
+  .mobile-command-bar {
+    display: flex;
+  }
+}
+
+.mobile-cmd {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  background: rgba(125, 207, 255, 0.06);
+  border: 1px solid rgba(125, 207, 255, 0.15);
+  border-radius: 4px;
+  color: var(--color-tn-cyan);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.mobile-cmd:active {
+  background: rgba(125, 207, 255, 0.15);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-tn-comment); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #737aa2; }
+
+/* ── Startup typing animation ── */
+@keyframes type-cursor {
+  0%, 100% { border-color: var(--color-tn-cyan); }
+  50% { border-color: transparent; }
+}
+
+@media (max-width: 640px) {
+  .terminal-input-area {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
+  }
+}
