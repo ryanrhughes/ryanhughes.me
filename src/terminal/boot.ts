@@ -45,8 +45,8 @@ export async function boot() {
   const vibes = ['a mass of open browser tabs', 'the void', 'localhost', 'somewhere with wifi', '127.0.0.1'];
   const vibe = vibes[Math.floor(Math.random() * vibes.length)];
 
-  // ASCII banner
-  appendOutput(`<span class="tc-purple tc-bold"> ____                     _   _             _
+  // ASCII banner — scaled to fit viewport
+  appendOutput(`<span class="ascii-banner tc-purple tc-bold"> ____                    _   _             _
 |  _ \\ _   _  __ _ _ __ | | | |_   _  __ _| |__   ___  ___
 | |_) | | | |/ _\` | '_ \\| |_| | | | |/ _\` | '_ \\ / _ \\/ __|
 |  _ <| |_| | (_| | | | |  _  | |_| | (_| | | | |  __/\\__ \\
@@ -80,7 +80,7 @@ export async function boot() {
   appendOutput(`<span class="tc-muted">Last login: ${dateStr} from ${vibe}</span>
 
 <span class="tc-white">Welcome.</span> <span class="tc-muted">Type ${click('help', 'help', 'tc-link-inline')} for commands, or just click anything highlighted.</span>
-<span class="tc-muted">Try: ${click('ls', 'ls', 'tc-link-inline')}  ${click('man ryan', 'man ryan', 'tc-link-inline')}  ${click('cat resume.txt', 'cat resume.txt', 'tc-link-inline')}  ${click('cat connect/*', 'cat connect/*', 'tc-link-inline')}</span>
+<span class="tc-muted">Try: ${click('ls', 'ls', 'tc-link-inline')}  ${click('lt', 'lt', 'tc-link-inline')}  ${click('man ryan', 'man ryan', 'tc-link-inline')}  ${click('cat resume.txt', 'cat resume.txt', 'tc-link-inline')}  ${click('cat connect/*', 'cat connect/*', 'tc-link-inline')}</span>
 `);
 
   // Show input

@@ -10,7 +10,7 @@ interface FilesystemData {
 }
 
 function makeBanner(text: string): string {
-  return `<span class="tc-banner">${text}</span>`;
+  return `<span class="tc-banner" role="heading" aria-level="2">${text}</span>`;
 }
 
 function expandBanners(html: string): string {

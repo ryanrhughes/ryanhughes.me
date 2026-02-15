@@ -24,8 +24,8 @@ export function cmdOpencode(_args: string, _ctx: CommandContext): string {
     <span class="tc-purple">Go</span> core — single binary, instant startup, no dependencies
     <span class="tc-purple">Desktop</span> — also ships as a native app for non-terminal folks
 
-  <span class="tc-label">Link:</span>   <a href="https://opencode.ai" target="_blank" class="tc-link">opencode.ai</a>
-  <span class="tc-label">Source:</span> <a href="https://github.com/anomalyco/opencode" target="_blank" class="tc-link">github.com/anomalyco/opencode</a>
+  <span class="tc-label">Link:</span>   <a href="https://opencode.ai" target="_blank" rel="noopener noreferrer" class="tc-link">opencode.ai</a>
+  <span class="tc-label">Source:</span> <a href="https://github.com/anomalyco/opencode" target="_blank" rel="noopener noreferrer" class="tc-link">github.com/anomalyco/opencode</a>
 
   <span class="tc-muted">// this site was built with opencode. obviously.</span>`;
 }

@@ -1,3 +1,4 @@
+import { isMobile } from './types';
 import type { CommandContext, FSTree } from './types';
 import { appendOutput, appendCommandLine, clearOutput, escapeHtml, click, dirClick, fileClick, scrollToBottom } from './output';
 import { buildFilesystem } from './filesystem';
@@ -18,7 +19,13 @@ let historyIndex = -1;
 let lastCmdError = false;
 const startTime = Date.now();
 
-const { fs, fileContents } = buildFilesystem();
+let fs: FSTree = {};
+let fileContents: Record<string, string> = {};
+if (typeof document !== 'undefined') {
+  const built = buildFilesystem();
+  fs = built.fs;
+  fileContents = built.fileContents;
+}
 
 // ── DOM ──
 let inputEl: HTMLInputElement;
@@ -128,14 +135,10 @@ function cmdLs(args: string, forceAll = false): string {
     return parts.join('  ');
   }
 
-  // Long format — fixed-width columns
-  // Col layout (visible chars):
-  //   Perms(10) ' ' Size(5) ' ' User(4) ' ' Date(12) ' ' Name
+  const mobile = isMobile();
+
+  // Long format
   const lines: string[] = [];
-  // Columns: perms(10) gap(2) size(4) gap(2) user(4) gap(2) date(12) gap(2) name
-  // Total before Name = 38
-  const header = `<span class="tc-muted">Perms       Size  User  Modified      Name</span>`;
-  lines.push(header);
 
   const colorPerms = (perms: string): string => {
     return perms.split('').map(c => {
@@ -149,26 +152,47 @@ function cmdLs(args: string, forceAll = false): string {
     }).join('');
   };
 
-  const makeLine = (perms: string, size: string, name: string) => {
-    const p = colorPerms(perms);
-    const s = size.padStart(4);
-    const d = fakeDate();
-    // perms(10) + 2 + size(4 right-aligned) + 2 + user(4) + 2 + date(12) + 2 + name
-    return `${p}  ${s}  <span class="tc-yellow">ryan</span>  ${d}  ${name}`;
-  };
+  if (mobile) {
+    // Compact: size + name only
+    const makeLine = (size: string, name: string) => {
+      return `<span class="tc-muted">${size.padStart(5)}</span>  ${name}`;
+    };
+    if (hasA) {
+      lines.push(makeLine('-', '<span class="tc-muted">.</span>'));
+      lines.push(makeLine('-', '<span class="tc-muted">..</span>'));
+    }
+    for (const [name, info] of sorted) {
+      const isDir = (info as any)._type === 'dir';
+      const size = isDir ? '-' : fakeSize();
+      const fullPath = resolved === '~' ? name : resolved + '/' + name;
+      const display = isDir ? dirClick(name, fullPath) : fileClick(name, fullPath, (info as any).icon);
+      lines.push(makeLine(size, display));
+    }
+  } else {
+    // Full desktop layout
+    const header = `<span class="tc-muted">Perms       Size  User  Modified      Name</span>`;
+    lines.push(header);
 
-  if (hasA) {
-    lines.push(makeLine('drwxr-xr-x', '-', '<span class="tc-icon tc-dir-icon">\uf07b</span> <span class="tc-muted">.</span>'));
-    lines.push(makeLine('drwxr-xr-x', '-', '<span class="tc-icon tc-dir-icon">\uf07b</span> <span class="tc-muted">..</span>'));
-  }
+    const makeLine = (perms: string, size: string, name: string) => {
+      const p = colorPerms(perms);
+      const s = size.padStart(4);
+      const d = fakeDate();
+      return `${p}  ${s}  <span class="tc-yellow">ryan</span>  ${d}  ${name}`;
+    };
 
-  for (const [name, info] of sorted) {
-    const isDir = (info as any)._type === 'dir';
-    const perms = isDir ? 'drwxr-xr-x' : '-rw-r--r--';
-    const size = isDir ? '-' : fakeSize();
-    const fullPath = resolved === '~' ? name : resolved + '/' + name;
-    const display = isDir ? dirClick(name, fullPath) : fileClick(name, fullPath, (info as any).icon);
-    lines.push(makeLine(perms, size, display));
+    if (hasA) {
+      lines.push(makeLine('drwxr-xr-x', '-', '<span class="tc-icon tc-dir-icon">\uf07b</span> <span class="tc-muted">.</span>'));
+      lines.push(makeLine('drwxr-xr-x', '-', '<span class="tc-icon tc-dir-icon">\uf07b</span> <span class="tc-muted">..</span>'));
+    }
+
+    for (const [name, info] of sorted) {
+      const isDir = (info as any)._type === 'dir';
+      const perms = isDir ? 'drwxr-xr-x' : '-rw-r--r--';
+      const size = isDir ? '-' : fakeSize();
+      const fullPath = resolved === '~' ? name : resolved + '/' + name;
+      const display = isDir ? dirClick(name, fullPath) : fileClick(name, fullPath, (info as any).icon);
+      lines.push(makeLine(perms, size, display));
+    }
   }
 
   return lines.join('\n');
@@ -285,6 +309,7 @@ function cmdCat(args: string): string {
 
 function cmdOpen(args: string): string {
   const target = args.trim();
+  if (!target) { lastCmdError = true; return `<span class="tc-red">open: missing file operand</span>`; }
   const resolved = resolvePath(target);
   const dirPath = resolved.substring(0, resolved.lastIndexOf('/'));
   const fileName = resolved.substring(resolved.lastIndexOf('/') + 1);
@@ -301,7 +326,7 @@ function cmdOpen(args: string): string {
 function executeSingle(command: string, args: string, ctx: CommandContext): string {
   switch (command) {
     case 'help': return cmdHelp(args, ctx);
-    case 'ls': return cmdLs(args);
+    case 'ls': return cmdLs(args, true);
     case 'll': return cmdLs(args, true);
     case 'lt': return cmdTree(args);
     case 'tree': return cmdTree(args);
@@ -338,7 +363,7 @@ function executeSingle(command: string, args: string, ctx: CommandContext): stri
 }
 
 // ── Execute command ──
-export function executeCommand(raw: string) {
+export function executeCommand(raw: string, { interactive = true } = {}) {
   const cmd = raw.trim();
   if (!cmd) return;
 
@@ -361,7 +386,7 @@ export function executeCommand(raw: string) {
     updatePrompt();
     inputEl.value = '';
     resizeInput();
-    inputEl.focus();
+    if (interactive) inputEl.focus();
     return;
   }
 
@@ -462,7 +487,7 @@ export function executeCommand(raw: string) {
   updatePrompt();
   inputEl.value = '';
   resizeInput();
-  inputEl.focus();
+  if (interactive) inputEl.focus();
 }
 
 // ── Tab completion ──
@@ -535,13 +560,15 @@ export function initEngine(elements: {
   terminalEl.addEventListener('click', (e) => {
     const sel = window.getSelection();
     if (sel && sel.toString().length > 0) return;
-    if (!(e.target as HTMLElement).closest('a, .tc-click')) inputEl.focus();
+    if (!(e.target as HTMLElement).closest('a, .tc-click, .mobile-cmd')) inputEl.focus();
   });
 
   document.querySelectorAll('.mobile-cmd').forEach(btn => {
     btn.addEventListener('click', () => {
       const cmd = (btn as HTMLElement).dataset.cmd;
-      if (cmd) executeCommand(cmd);
+      if (cmd) {
+        executeCommand(cmd, { interactive: false });
+      }
     });
   });
 }

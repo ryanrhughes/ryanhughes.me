@@ -40,6 +40,7 @@ try {
 
     function formatDate(dateStr: string): string {
       const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return 'Unknown';
       const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
     }
@@ -108,7 +109,9 @@ try {
 <Layout title="Ryan Hughes — Terminal">
   <div id="crt-overlay"></div>
   <div id="terminal" class="terminal-fullscreen">
-    <div id="terminal-output" class="terminal-output"></div>
+    <div id="terminal-output" class="terminal-output" role="log" aria-live="polite"></div>
+    <!-- Bottom bar: input + mobile commands -->
+    <div id="bottom-bar" class="bottom-bar">
     <div id="input-area" class="terminal-input-area" style="display:none;">
       <span id="prompt" class="prompt"></span>
       <div class="input-wrapper">
@@ -116,6 +119,7 @@ try {
           id="terminal-input"
           type="text"
           class="terminal-input"
+          aria-label="Terminal command input"
           autocomplete="off"
           autocorrect="off"
           autocapitalize="off"
@@ -124,18 +128,19 @@ try {
         <span id="cursor" class="cursor-blink">█</span>
       </div>
     </div>
-  </div>
-  <!-- Mobile command bar -->
-  <div id="mobile-bar" class="mobile-command-bar">
-    <button class="mobile-cmd" data-cmd="help">help</button>
-    <button class="mobile-cmd" data-cmd="ls">ls</button>
-    <button class="mobile-cmd" data-cmd="ls projects/">projects</button>
-    <button class="mobile-cmd" data-cmd="man ryan">man ryan</button>
-    <button class="mobile-cmd" data-cmd="neofetch">neofetch</button>
-    <button class="mobile-cmd" data-cmd="cat connect/*">connect</button>
-  </div>
+    <div id="mobile-bar" class="mobile-command-bar">
+      <button class="mobile-cmd" data-cmd="help">help</button>
+      <button class="mobile-cmd" data-cmd="ls">ls</button>
+      <button class="mobile-cmd" data-cmd="lt">tree</button>
+      <button class="mobile-cmd" data-cmd="ls projects/">projects</button>
+      <button class="mobile-cmd" data-cmd="man ryan">man ryan</button>
+      <button class="mobile-cmd" data-cmd="neofetch">neofetch</button>
+      <button class="mobile-cmd" data-cmd="cat connect/*">connect</button>
+    </div>
+    </div> <!-- /bottom-bar -->
+  </div> <!-- /terminal -->
 
-  <script id="podcast-data" type="application/json" set:html={podcastJson} />
+  <script id="podcast-data" type="application/json" set:html={podcastJson.replace(/<\/script/gi, '<\\/script')}></script>
   <script>
     import { boot } from '../terminal/boot';
     boot();

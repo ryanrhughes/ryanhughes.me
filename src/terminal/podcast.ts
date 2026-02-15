@@ -1,5 +1,11 @@
+import { isMobile } from './types';
+
 // Fetch and parse podcast RSS feed at build time
 const RSS_URL = 'https://api.riverside.fm/hosting/okuCkBP9.rss';
+
+function escPodcast(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 
 export interface PodcastEpisode {
   title: string;
@@ -142,7 +148,7 @@ export function buildEpisodeHtml(ep: PodcastEpisode, prev: PodcastEpisode | null
   const lines: string[] = [];
 
   // Header
-  lines.push(`<banner>${ep.title}</banner>`);
+  lines.push(`<banner>${escPodcast(ep.title)}</banner>`);
   lines.push('');
   lines.push(`<span class="tc-muted">Published ${ep.pubDate}  ·  ${ep.duration}</span>`);
   lines.push('');
@@ -172,10 +178,10 @@ export function buildEpisodeHtml(ep: PodcastEpisode, prev: PodcastEpisode | null
   lines.push('<span class="tc-muted">─────────────────────────────────</span>');
   const nav: string[] = [];
   if (prev) {
-    nav.push(`<span class="tc-click tc-link-inline" data-cmd="cat ~/podcast/${prev.slug}">← ${prev.title}</span>`);
+    nav.push(`<span class="tc-click tc-link-inline" data-cmd="cat ~/podcast/${prev.slug}">← ${escPodcast(prev.title)}</span>`);
   }
   if (next) {
-    nav.push(`<span class="tc-click tc-link-inline" data-cmd="cat ~/podcast/${next.slug}">${next.title} →</span>`);
+    nav.push(`<span class="tc-click tc-link-inline" data-cmd="cat ~/podcast/${next.slug}">${escPodcast(next.title)} →</span>`);
   }
   if (nav.length) {
     lines.push(nav.join('    '));
@@ -209,8 +215,13 @@ export function buildPodcastReadme(data: PodcastData): string {
 
   // List episodes newest first
   const sorted = [...data.episodes].reverse();
+  const mobile = isMobile();
   for (const ep of sorted) {
-    lines.push(`<span class="tc-click tc-link-inline" data-cmd="cat ~/podcast/${ep.slug}">EP ${String(ep.number).padStart(2, '0')}</span>  <span class="tc-muted">${ep.pubDate.padEnd(14)}</span> <span class="tc-muted">${ep.duration.padEnd(7)}</span> ${ep.title.replace(/^Episode\s*\d+\s*[-–—]\s*/i, '')}`);
+    if (mobile) {
+      lines.push(`<span class="tc-click tc-link-inline" data-cmd="cat ~/podcast/${ep.slug}">EP ${String(ep.number).padStart(2, '0')}</span>  ${escPodcast(ep.title.replace(/^Episode\s*\d+\s*[-–—]\s*/i, ''))}`);
+    } else {
+      lines.push(`<span class="tc-click tc-link-inline" data-cmd="cat ~/podcast/${ep.slug}">EP ${String(ep.number).padStart(2, '0')}</span>  <span class="tc-muted">${ep.pubDate.padEnd(14)}</span> <span class="tc-muted">${ep.duration.padEnd(7)}</span> ${escPodcast(ep.title.replace(/^Episode\s*\d+\s*[-–—]\s*/i, ''))}`);
+    }
   }
 
   return lines.join('\n');

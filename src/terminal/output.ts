@@ -1,6 +1,6 @@
 let outputEl: HTMLElement;
 let terminalEl: HTMLElement;
-let executeCommandFn: (cmd: string) => void;
+let executeCommandFn: (cmd: string, opts?: { interactive?: boolean }) => void;
 
 export function initOutput(
   output: HTMLElement,
@@ -10,6 +10,23 @@ export function initOutput(
   outputEl = output;
   terminalEl = terminal;
   executeCommandFn = executeCommand;
+
+  // Delegated click/keyboard handler for all .tc-click elements
+  outputEl.addEventListener('click', (e) => {
+    const target = (e.target as HTMLElement).closest('.tc-click') as HTMLElement;
+    if (target?.dataset.cmd) {
+      executeCommandFn(target.dataset.cmd, { interactive: false });
+    }
+  });
+  outputEl.addEventListener('keydown', (e) => {
+    if ((e as KeyboardEvent).key === 'Enter' || (e as KeyboardEvent).key === ' ') {
+      const target = (e.target as HTMLElement).closest('.tc-click') as HTMLElement;
+      if (target?.dataset.cmd) {
+        e.preventDefault();
+        executeCommandFn(target.dataset.cmd);
+      }
+    }
+  });
 }
 
 export function escapeHtml(s: string): string {
@@ -17,7 +34,7 @@ export function escapeHtml(s: string): string {
 }
 
 export function click(label: string, cmd: string, cls = ''): string {
-  return `<span class="tc-click ${cls}" data-cmd="${escapeHtml(cmd)}">${label}</span>`;
+  return `<span class="tc-click ${cls}" data-cmd="${escapeHtml(cmd)}" role="button" tabindex="0">${escapeHtml(label)}</span>`;
 }
 
 // Nerd Font icons
@@ -58,12 +75,7 @@ export function appendOutput(html: string) {
   div.className = 'output-block';
   div.innerHTML = html;
   outputEl.appendChild(div);
-  div.querySelectorAll('.tc-click').forEach(el => {
-    el.addEventListener('click', () => {
-      const cmd = (el as HTMLElement).dataset.cmd;
-      if (cmd) executeCommandFn(cmd);
-    });
-  });
+  // Click/keyboard handling is delegated on #terminal-output (see initOutput)
   // Scroll after images load (bio headshot, icons, etc.)
   div.querySelectorAll('img').forEach(img => {
     img.addEventListener('load', () => scrollToBottom());

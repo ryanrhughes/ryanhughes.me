@@ -54,9 +54,9 @@ html, body {
 
 @media (max-width: 640px) {
   .terminal-fullscreen {
-    font-size: 12px;
+    font-size: 14px;
     padding: 0.5rem 0.75rem;
-    padding-bottom: 48px;
+    padding-bottom: 100px; /* space for fixed bottom-bar */
   }
 }
 
@@ -72,10 +72,25 @@ html, body {
   max-width: 80ch;
 }
 
+/* ASCII banner — scale to fit viewport width */
+.ascii-banner {
+  display: inline-block;
+  font-size: min(1em, 2.6vw);
+  line-height: 1.3;
+  white-space: pre;
+}
+
 /* Indented content block — preserves indent on wrap */
 .tc-indent {
   display: block;
   padding-left: 2ch;
+}
+
+/* Key-value line — wrapped text indents under the value, not the label */
+.tc-kv {
+  display: block;
+  padding-left: 9ch;
+  text-indent: -9ch;
 }
 
 .command-echo {
@@ -91,18 +106,42 @@ html, body {
 }
 
 /* ── Input Area ── */
+/* Bottom bar — contains input + mobile commands */
+.bottom-bar {
+  position: sticky;
+  bottom: 0;
+  background: var(--color-tn-bg);
+  z-index: 10;
+  margin-left: -1.25rem;
+  margin-right: -1.25rem;
+}
+
+@media (max-width: 640px) {
+  .bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    z-index: 50;
+  }
+}
+
 .terminal-input-area {
   display: flex;
   align-items: center;
   gap: 0;
-  padding: 0.5rem 1.25rem 1rem 1.25rem;
-  margin-left: -1.25rem;
-  margin-right: -1.25rem;
-  position: sticky;
-  bottom: 0;
+  padding: 0.5rem 1.25rem 0.5rem 1.25rem;
   flex-shrink: 0;
-  background: var(--color-tn-bg, #1a1b26);
-  z-index: 10;
+}
+
+@media (max-width: 640px) {
+  .terminal-input-area {
+    padding: 0.5rem 0.75rem;
+  }
+  .terminal-input {
+    font-size: 16px; /* prevents iOS auto-zoom on focus */
+  }
 }
 
 .prompt {
@@ -266,6 +305,12 @@ html, body {
   transition: all 0.15s ease;
 }
 
+.tc-click:focus-visible {
+  outline: 1px solid var(--color-tn-cyan);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 .tc-click:hover {
   color: #b4e1ff;
   text-shadow: 0 0 8px rgba(125, 207, 255, 0.4);
@@ -350,6 +395,10 @@ html, body {
   color: var(--color-tn-blue);
 }
 
+.tc-cyan {
+  color: var(--color-tn-cyan);
+}
+
 .tc-purple {
   color: var(--color-tn-purple);
 }
@@ -376,6 +425,15 @@ html, body {
 .tc-link:hover {
   color: #b4e1ff;
   text-shadow: 0 0 8px rgba(125, 207, 255, 0.4);
+}
+
+/* ── Content Image ── */
+.tc-content-img {
+  width: min(280px, 60%);
+  height: auto;
+  border-radius: 4px;
+  margin: 0.5em 0;
+  display: block;
 }
 
 /* ── Terminal Image Frame ── */
@@ -411,13 +469,7 @@ html, body {
 /* ── Mobile Command Bar ── */
 .mobile-command-bar {
   display: none;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
-  padding: 6px 8px;
-  background: rgba(22, 22, 30, 0.95);
+  padding: 6px 0.75rem;
   border-top: 1px solid rgba(125, 207, 255, 0.1);
   overflow-x: auto;
   gap: 6px;
@@ -445,8 +497,20 @@ html, body {
   transition: all 0.15s;
 }
 
+.mobile-cmd:focus-visible {
+  outline: 1px solid var(--color-tn-cyan);
+  outline-offset: 2px;
+}
+
 .mobile-cmd:active {
   background: rgba(125, 207, 255, 0.15);
+}
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .cursor-blink { animation: none; }
+  #crt-overlay::after { animation: none; }
+  .tc-click, .tc-cmd, .tc-dir, .tc-file, .tc-link-inline, .tc-link { transition: none; }
 }
 
 /* ── Scrollbar ── */
@@ -459,15 +523,6 @@ html, body {
 @keyframes type-cursor {
   0%, 100% { border-color: var(--color-tn-cyan); }
   50% { border-color: transparent; }
-}
-
-@media (max-width: 640px) {
-  .terminal-input-area {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    margin-left: -0.75rem;
-    margin-right: -0.75rem;
-  }
 }
 
 /* ── Podcast Player ── */

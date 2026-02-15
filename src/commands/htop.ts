@@ -1,7 +1,24 @@
+import { isMobile } from '../terminal/types';
 import type { CommandContext } from '../terminal/types';
 
 export function cmdHtop(args: string, ctx: CommandContext): string {
   const { click } = ctx;
+
+  if (isMobile()) {
+    return `<span class="tc-white tc-bold"> %CPU  COMMAND</span>
+<span class="tc-green"> 85.2  ${click('oodle', 'cat projects/oodle', 'tc-link-inline')}</span>
+<span class="tc-green"> 72.1  ${click('third-helix', 'cat projects/third-helix', 'tc-link-inline')}</span>
+<span class="tc-green"> 65.8  ${click('omarchy', 'cat projects/omarchy', 'tc-link-inline')}</span>
+<span class="tc-yellow"> 45.3  ${click('sunset-villas', 'cat projects/sunset-villas', 'tc-link-inline')}</span>
+<span class="tc-yellow"> 99.9  coffee-daemon</span>
+<span class="tc-muted"> 30.0  dog-petting-service</span>
+<span class="tc-muted"> 15.0  3d-print-slicer</span>
+<span class="tc-red">  0.0  sleeping [SUSPENDED]</span>
+
+<span class="tc-muted">Tasks: 8 total, 5 running, 2 sleeping, 1 suspended
+Load average: just right</span>`;
+  }
+
   return `<span class="tc-white tc-bold">  PID USER      PR  NI    VIRT    RES  %CPU %MEM  TIME+ COMMAND</span>
 <span class="tc-green"> 1337 ryan      20   0  420.0m  69.0m  85.2  4.2  9999+ ${click('oodle', 'cat projects/oodle', 'tc-link-inline')}</span>
 <span class="tc-green">  420 ryan      20   0  256.0m  42.0m  72.1  3.1  8888+ ${click('third-helix', 'cat projects/third-helix', 'tc-link-inline')}</span>

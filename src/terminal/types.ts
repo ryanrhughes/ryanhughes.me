@@ -8,6 +8,12 @@ export interface FSTree {
   [path: string]: FSEntry & { [name: string]: FSEntry };
 }
 
+/** Mobile breakpoint — single source of truth */
+export const MOBILE_BREAKPOINT = 640;
+export function isMobile(): boolean {
+  return typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT;
+}
+
 export interface CommandContext {
   cwd: string;
   commandHistory: string[];

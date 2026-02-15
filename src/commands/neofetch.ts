@@ -1,9 +1,10 @@
+import { isMobile } from '../terminal/types';
 import type { CommandContext } from '../terminal/types';
 
 export function cmdNeofetch(args: string, ctx: CommandContext): string {
   const { click } = ctx;
 
-  if (window.innerWidth < 640) {
+  if (isMobile()) {
     return `<span class="tc-cyan"> 8 888888888o.   8 8888   8
  8 8888    \`88.  8 8888   8
  8 8888     \`88  8 8888   8
