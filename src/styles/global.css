@@ -70,6 +70,12 @@ html, body {
   margin-bottom: 0.25rem;
   white-space: pre-wrap;
   max-width: 80ch;
+  animation: fadeSlideIn 0.15s ease-out;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ASCII banner — scale to fit viewport width */
@@ -140,7 +146,7 @@ html, body {
     padding: 0.5rem 0.75rem;
   }
   .terminal-input {
-    font-size: 16px; /* prevents iOS auto-zoom on focus */
+    font-size: 16px; /* prevents iOS auto-zoom on focus (viewport max-scale is primary fix) */
   }
 }
 
@@ -239,6 +245,7 @@ html, body {
   animation: blink 1s step-end infinite;
   font-size: inherit;
   line-height: 1;
+  text-shadow: 0 0 6px rgba(125, 207, 255, 0.5), 0 0 12px rgba(125, 207, 255, 0.2);
 }
 
 /* ── CRT Overlay (subtle, atmospheric) ── */
@@ -504,12 +511,14 @@ html, body {
 
 .mobile-cmd:active {
   background: rgba(125, 207, 255, 0.15);
+  transform: scale(0.95);
 }
 
 /* ── Reduced Motion ── */
 @media (prefers-reduced-motion: reduce) {
   .cursor-blink { animation: none; }
   #crt-overlay::after { animation: none; }
+  .output-block { animation: none; }
   .tc-click, .tc-cmd, .tc-dir, .tc-file, .tc-link-inline, .tc-link { transition: none; }
 }
 

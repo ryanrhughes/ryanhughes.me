@@ -387,6 +387,7 @@ export function executeCommand(raw: string, { interactive = true } = {}) {
     inputEl.value = '';
     resizeInput();
     if (interactive) inputEl.focus();
+    updateMobileBar();
     return;
   }
 
@@ -488,6 +489,7 @@ export function executeCommand(raw: string, { interactive = true } = {}) {
   inputEl.value = '';
   resizeInput();
   if (interactive) inputEl.focus();
+  updateMobileBar();
 }
 
 // ── Tab completion ──
@@ -573,8 +575,57 @@ export function initEngine(elements: {
   });
 }
 
+// ── Contextual mobile suggestion bar ──
+function updateMobileBar() {
+  const bar = document.getElementById('mobile-bar');
+  if (!bar) return;
+
+  const entries = fs[cwd];
+  if (!entries) return;
+
+  const items = Object.entries(entries).filter(([k]) => k !== '_type');
+  const suggestions: { label: string; cmd: string }[] = [];
+
+  // Always offer cd .. if not at home
+  if (cwd !== '~') {
+    suggestions.push({ label: '← back', cmd: 'cd ..' });
+  }
+
+  // Add dirs as cd targets
+  for (const [name, info] of items) {
+    if ((info as any)._type === 'dir') {
+      suggestions.push({ label: name + '/', cmd: `cd ${cwd === '~' ? name : cwd + '/' + name} && ls` });
+    }
+  }
+
+  // Add files as cat targets
+  for (const [name, info] of items) {
+    if ((info as any)._type !== 'dir' && name !== '.secrets') {
+      suggestions.push({ label: name, cmd: `cat ${cwd === '~' ? name : cwd + '/' + name}` });
+    }
+  }
+
+  // Always include some global commands
+  if (cwd === '~') {
+    suggestions.push({ label: 'man ryan', cmd: 'man ryan' });
+    suggestions.push({ label: 'neofetch', cmd: 'neofetch' });
+  }
+
+  bar.innerHTML = suggestions.map(s =>
+    `<button class="mobile-cmd" data-cmd="${escapeHtml(s.cmd)}">${escapeHtml(s.label)}</button>`
+  ).join('');
+
+  // Re-bind click handlers
+  bar.querySelectorAll('.mobile-cmd').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cmd = (btn as HTMLElement).dataset.cmd;
+      if (cmd) executeCommand(cmd, { interactive: false });
+    });
+  });
+}
+
 // Expose for boot sequence
-export { cwd, commandHistory, fs, fileContents, updatePrompt, resolvePath };
+export { cwd, commandHistory, fs, fileContents, updatePrompt, resolvePath, updateMobileBar };
 export function setHistoryIndex(i: number) { historyIndex = i; }
 export function getInputArea() { return inputArea; }
 export function getInputEl() { return inputEl; }

@@ -23,7 +23,7 @@ export function initOutput(
       const target = (e.target as HTMLElement).closest('.tc-click') as HTMLElement;
       if (target?.dataset.cmd) {
         e.preventDefault();
-        executeCommandFn(target.dataset.cmd);
+        executeCommandFn(target.dataset.cmd, { interactive: false });
       }
     }
   });

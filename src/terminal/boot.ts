@@ -1,5 +1,5 @@
 import { appendOutput, scrollToBottom, click, initOutput, escapeHtml, dirClick, fileClick } from './output';
-import { getPromptHTML, executeCommand, initEngine, commandHistory, setHistoryIndex, updatePrompt, fs, fileContents } from './engine';
+import { getPromptHTML, executeCommand, initEngine, commandHistory, setHistoryIndex, updatePrompt, updateMobileBar, fs, fileContents } from './engine';
 import { cmdNeofetch } from '../commands/neofetch';
 import type { CommandContext } from './types';
 
@@ -88,5 +88,6 @@ export async function boot() {
   updatePrompt();
   inputArea.style.display = 'flex';
   inputEl.focus();
+  updateMobileBar();
   scrollToBottom();
 }
