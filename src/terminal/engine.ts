@@ -394,6 +394,10 @@ export function executeCommand(raw: string, { interactive = true } = {}) {
       const subCmd = subParts[0].toLowerCase();
       const subArgs = sub.substring(subParts[0].length).trim();
       const ctx = getContext();
+      // Track chained command usage in Umami
+      if (typeof window !== 'undefined' && (window as any).umami) {
+        (window as any).umami.track('terminal_command', { command: subCmd, args: subArgs, raw: sub });
+      }
       let output = executeSingle(subCmd, subArgs, ctx);
       if (output) appendOutput(output);
       if (lastCmdError) break;
@@ -414,6 +418,11 @@ export function executeCommand(raw: string, { interactive = true } = {}) {
   const parts = cmd.split(/\s+/);
   const command = parts[0].toLowerCase();
   const args = cmd.substring(parts[0].length).trim();
+
+  // Track command usage in Umami
+  if (typeof window !== 'undefined' && (window as any).umami) {
+    (window as any).umami.track('terminal_command', { command, args, raw: cmd });
+  }
   const ctx = getContext();
 
   // Dramatic rm -rf animation
