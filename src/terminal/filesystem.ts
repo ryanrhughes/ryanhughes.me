@@ -3,6 +3,7 @@ import { buildEpisodeHtml, buildPodcastReadme, type PodcastData } from './podcas
 
 // Import all .html files from src/filesystem/ at build time
 const htmlModules = import.meta.glob('/src/filesystem/**/*.html', { query: '?raw', import: 'default', eager: true });
+const BASE = import.meta.env.BASE_URL;
 
 interface FilesystemData {
   fs: FSTree;
@@ -75,7 +76,8 @@ export function buildFilesystem(): FilesystemData {
     }
   }
 
-  for (const [modulePath, raw] of Object.entries(htmlModules)) {
+  for (const [modulePath, rawModule] of Object.entries(htmlModules)) {
+    const raw = (rawModule as string).replace(/__BASE__/g, BASE);
     // modulePath: /src/filesystem/projects/oodle.html
     // Convert to virtual path: ~/projects/oodle
     const relative = modulePath.replace('/src/filesystem/', '');
@@ -104,7 +106,7 @@ export function buildFilesystem(): FilesystemData {
     }
 
     // Add file entry
-    const { content, url, icon } = parseMetadata(raw as string);
+    const { content, url, icon } = parseMetadata(raw);
     const fullPath = currentPath === '~' ? `~/${fileName}` : `${currentPath}/${fileName}`;
 
     if (!fs[currentPath]) fs[currentPath] = { _type: 'dir' } as any;

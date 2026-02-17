@@ -1,7 +1,9 @@
 import type { CommandContext } from '../terminal/types';
 
+const BASE = import.meta.env.BASE_URL;
+
 export function cmdOpencode(_args: string, _ctx: CommandContext): string {
-  return `<img src="/ryanhughes/opencode-logo.svg" alt="opencode" style="height:3.5em;margin:0.5em 0 0 1em" />
+  return `<img src="${BASE}opencode-logo.svg" alt="opencode" style="height:3.5em;margin:0.5em 0 0 1em" />
   <span class="tc-green">The open source AI coding agent.</span>
   <span class="tc-muted">By the Anomaly team. Open source. Runs everywhere.</span>
 
