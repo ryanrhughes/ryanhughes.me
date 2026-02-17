@@ -345,6 +345,21 @@ function executeSingle(command: string, args: string, ctx: CommandContext): stri
     case 'uptime': return cmdUptime(args, ctx);
     case 'cowsay': return cmdCowsay(args, ctx);
     case 'clear': clearOutput(); return '';
+    case 'home': {
+      clearOutput();
+      cwd = '~';
+      const homeCtx = getContext();
+      const banner = `<span class="ascii-banner tc-purple tc-bold"> ____                    _   _             _
+|  _ \\ _   _  __ _ _ __ | | | |_   _  __ _| |__   ___  ___
+| |_) | | | |/ _\` | '_ \\| |_| | | | |/ _\` | '_ \\ / _ \\/ __|
+|  _ <| |_| | (_| | | | |  _  | |_| | (_| | | | |  __/\\__ \\
+|_| \\_\\\\__, |\\__,_|_| |_|_| |_|\\__,_|\\__, |_| |_|\\___||___/
+       |___/                          |___/</span>`;
+      const whoami = `<span class="tc-accent tc-bold" style="font-size:1.1em">Ryan Hughes</span>\n<span class="tc-muted">husband · builder · founder · open-source contributor · Fort Lauderdale, FL</span>`;
+      const neo = cmdNeofetch('', homeCtx);
+      const motd = `<span class="tc-white">Welcome.</span> <span class="tc-muted">Type ${click('help', 'help', 'tc-link-inline')} for commands, or just click anything highlighted.</span>\n<span class="tc-muted">Try: ${click('ls', 'ls', 'tc-link-inline')}  ${click('lt', 'lt', 'tc-link-inline')}  ${click('man ryan', 'man ryan', 'tc-link-inline')}  ${click('cat resume.txt', 'cat resume.txt', 'tc-link-inline')}  ${click('cat connect/*', 'cat connect/*', 'tc-link-inline')}</span>`;
+      return [banner, whoami, neo, motd].join('\n\n');
+    }
     default: {
       const builtin = cmdBuiltin(command, args, ctx);
       if (builtin) {
@@ -496,7 +511,7 @@ export function executeCommand(raw: string, { interactive = true } = {}) {
 function getCompletions(partial: string): string[] {
   const parts = partial.split(/\s+/);
   if (parts.length <= 1) {
-    const cmds = ['help','ls','ll','lt','tree','cd','cat','open','opencode','c','pwd','whoami','man','neofetch','htop','history','uptime','cowsay','clear','exit','sudo','rm','vim','nvim','emacs','nano','rails','echo','ping','ssh','date'];
+    const cmds = ['help','home','ls','ll','lt','tree','cd','cat','open','opencode','c','pwd','whoami','man','neofetch','htop','history','uptime','cowsay','clear','exit','sudo','rm','vim','nvim','emacs','nano','rails','echo','ping','ssh','date'];
     return cmds.filter(c => c.startsWith(parts[0]));
   }
   const cmd = parts[0];
@@ -609,6 +624,8 @@ function updateMobileBar() {
   if (cwd === '~') {
     suggestions.push({ label: 'man ryan', cmd: 'man ryan' });
     suggestions.push({ label: 'neofetch', cmd: 'neofetch' });
+  } else {
+    suggestions.push({ label: '🏠 home', cmd: 'home' });
   }
 
   bar.innerHTML = suggestions.map(s =>

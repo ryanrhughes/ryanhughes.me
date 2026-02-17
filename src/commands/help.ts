@@ -8,6 +8,7 @@ export function cmdHelp(args: string, ctx: CommandContext): string {
     return `<span class="tc-purple">Available Commands</span>
 
  ${click('help', 'help', 'tc-cmd')}        show this help
+ ${click('home', 'home', 'tc-cmd')}        back to start
  ${click('ls', 'ls', 'tc-cmd')} <span class="tc-muted">[path]</span>  list directory
  ${click('lt', 'lt', 'tc-cmd')} <span class="tc-muted">[path]</span>  file tree
  ${click('cd', 'cd ~', 'tc-cmd')} <span class="tc-muted">&lt;dir&gt;</span>   change directory
@@ -30,6 +31,7 @@ export function cmdHelp(args: string, ctx: CommandContext): string {
   return `<span class="tc-purple">Available Commands</span>
 
   ${click('help', 'help', 'tc-cmd')}             show this help message
+  ${click('home', 'home', 'tc-cmd')}             back to the start screen
   ${click('ls', 'ls', 'tc-cmd')} <span class="tc-muted">[path]</span>         list directory contents
   ${click('lt', 'lt', 'tc-cmd')} <span class="tc-muted">[path]</span>         file tree
   ${click('cd', 'cd ~', 'tc-cmd')} <span class="tc-muted">&lt;dir&gt;</span>          change directory
