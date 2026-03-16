@@ -551,19 +551,41 @@ html, body {
   font-size: 0.8rem;
 }
 
+.reader-nav {
+  display: flex;
+  gap: 1rem;
+  margin-right: 1rem;
+}
+
+.reader-nav-link {
+  color: var(--color-tn-cyan);
+  text-decoration: none;
+  font-size: 0.8rem;
+  transition: color 0.15s;
+}
+
+.reader-nav-link:hover {
+  color: #b4e1ff;
+  text-shadow: 0 0 8px rgba(125, 207, 255, 0.4);
+}
+
 .reader-content {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 2rem 1.5rem 4rem;
-  max-width: 720px;
-  margin: 0 auto;
+  padding: 0;
   width: 100%;
   outline: none;
   line-height: 1.8;
   font-size: 0.95rem;
   color: var(--color-tn-fg);
   -webkit-overflow-scrolling: touch;
+}
+
+.reader-content-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
 }
 
 .reader-status-bar {
@@ -739,7 +761,7 @@ html, body {
 }
 
 @media (max-width: 640px) {
-  .reader-content {
+  .reader-content-inner {
     padding: 1.25rem 1rem 3rem;
   }
 

@@ -146,7 +146,7 @@ function formatInline(text: string): string {
 }
 
 /** Get blog post data from the embedded JSON */
-function getBlogPosts(): BlogPostData[] {
+export function getBlogPosts(): BlogPostData[] {
   const el = document.getElementById('blog-data');
   if (!el) return [];
   try {
@@ -157,7 +157,7 @@ function getBlogPosts(): BlogPostData[] {
 }
 
 /** Build reader HTML for a blog post */
-function buildBlogReaderHtml(post: BlogPostData): string {
+export function buildBlogReaderHtml(post: BlogPostData): string {
   return `<div class="reader-blog-post">
   <div class="reader-post-meta">
     <h1 class="reader-post-title">${escHtml(post.title)}</h1>

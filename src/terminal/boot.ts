@@ -1,6 +1,8 @@
 import { appendOutput, scrollToBottom, click, initOutput, escapeHtml, dirClick, fileClick } from './output';
 import { getPromptHTML, executeCommand, initEngine, commandHistory, setHistoryIndex, updatePrompt, updateMobileBar, fs, fileContents, getCwd, setUrlStateCallback } from './engine';
 import { cmdNeofetch } from '../commands/neofetch';
+import { getBlogPosts, buildBlogReaderHtml } from '../commands/read';
+import { openReader } from './reader';
 import type { CommandContext } from './types';
 
 async function sleep(ms: number) { return new Promise(r => setTimeout(r, ms)); }
@@ -19,6 +21,18 @@ async function typeLine(text: string, outputEl: HTMLElement, speed = 35): Promis
     await sleep(speed + Math.random() * 20);
   }
   await sleep(200);
+}
+
+/** Get the initial reader slug from the page data (for direct blog URLs) */
+function getInitialReaderSlug(): string | null {
+  const el = document.getElementById('initial-reader');
+  if (el) {
+    try {
+      const slug = JSON.parse(el.textContent || 'null');
+      return slug || null;
+    } catch { return null; }
+  }
+  return null;
 }
 
 /** Get the initial path to restore from the page data */
@@ -172,9 +186,12 @@ export async function boot() {
   const urlParams = new URLSearchParams(window.location.search);
   const cmdParam = urlParams.get('cmd');
 
+  // Check for initial reader (direct blog URL like /blog/slug)
+  const initialReaderSlug = getInitialReaderSlug();
+
   // Check for initial deep-link path
   const initialPath = getInitialPath();
-  const hasDeepLink = (initialPath && initialPath !== '/') || cmdParam;
+  const hasDeepLink = (initialPath && initialPath !== '/') || cmdParam || initialReaderSlug;
 
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -191,8 +208,16 @@ export async function boot() {
     updatePrompt();
     inputArea.style.display = 'flex';
 
-    // Navigate to the deep-linked path or execute cmd parameter
-    if (cmdParam) {
+    // Navigate to the deep-linked path, execute cmd parameter, or open reader
+    if (initialReaderSlug) {
+      // Direct blog URL — open the reader overlay directly
+      const posts = getBlogPosts();
+      const post = posts.find(p => p.slug === initialReaderSlug);
+      if (post) {
+        const html = buildBlogReaderHtml(post);
+        openReader(post.title, html, `blog/${initialReaderSlug}`, { directAccess: true });
+      }
+    } else if (cmdParam) {
       executeCommand(cmdParam, { interactive: false });
     } else {
       navigateToPath(initialPath);

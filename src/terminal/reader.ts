@@ -8,6 +8,7 @@ let contentEl: HTMLElement | null = null;
 let statusEl: HTMLElement | null = null;
 let previousUrl: string | null = null;
 let keyHandler: ((e: KeyboardEvent) => void) | null = null;
+let isDirectAccess = false;
 
 /** Check if the reader overlay is currently open */
 export function isReaderOpen(): boolean {
@@ -15,9 +16,10 @@ export function isReaderOpen(): boolean {
 }
 
 /** Open the reader overlay with rendered HTML content */
-export function openReader(title: string, content: string, filePath: string) {
+export function openReader(title: string, content: string, filePath: string, options?: { directAccess?: boolean }) {
   if (overlay) closeReader();
 
+  isDirectAccess = options?.directAccess ?? false;
   previousUrl = window.location.pathname + window.location.search;
 
   // Create overlay
@@ -31,12 +33,17 @@ export function openReader(title: string, content: string, filePath: string) {
   // Top bar (like less status)
   const topBar = document.createElement('div');
   topBar.className = 'reader-top-bar';
-  topBar.innerHTML = `<span class="reader-filename">${escapeHtml(filePath)}</span><span class="reader-hint">q to quit</span>`;
 
-  // Content area
+  if (isDirectAccess) {
+    topBar.innerHTML = `<span class="reader-nav"><a href="/blog" class="reader-nav-link">← blog</a><a href="/" class="reader-nav-link">← terminal</a></span><span class="reader-filename">${escapeHtml(filePath)}</span>`;
+  } else {
+    topBar.innerHTML = `<span class="reader-filename">${escapeHtml(filePath)}</span><span class="reader-hint">q to quit</span>`;
+  }
+
+  // Content area — inner wrapper for max-width while keeping scrollbar at viewport edge
   contentEl = document.createElement('div');
   contentEl.className = 'reader-content';
-  contentEl.innerHTML = content;
+  contentEl.innerHTML = `<div class="reader-content-inner">${content}</div>`;
   contentEl.tabIndex = 0;
 
   // Bottom status bar
@@ -70,10 +77,22 @@ export function openReader(title: string, content: string, filePath: string) {
 
     switch (e.key) {
       case 'q':
+        e.preventDefault();
+        e.stopPropagation();
+        if (isDirectAccess) {
+          window.location.href = '/';
+        } else {
+          closeReader();
+        }
+        break;
       case 'Escape':
         e.preventDefault();
         e.stopPropagation();
-        closeReader();
+        if (isDirectAccess) {
+          window.location.href = '/blog';
+        } else {
+          closeReader();
+        }
         break;
       case ' ':
       case 'PageDown':
@@ -190,11 +209,20 @@ export function closeReader(fromPopState = false) {
   contentEl = null;
   statusEl = null;
 
+  // For direct access, navigate away instead of restoring
+  if (isDirectAccess && !fromPopState) {
+    isDirectAccess = false;
+    previousUrl = null;
+    window.location.href = '/';
+    return;
+  }
+
   // Restore URL
   if (!fromPopState && previousUrl) {
     history.pushState(null, '', previousUrl);
   }
   previousUrl = null;
+  isDirectAccess = false;
 
   // Restore terminal focus
   const input = document.getElementById('terminal-input') as HTMLInputElement | null;
