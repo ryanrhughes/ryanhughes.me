@@ -2,6 +2,10 @@ import { isMobile } from './types';
 import type { CommandContext, FSTree } from './types';
 import { appendOutput, appendCommandLine, clearOutput, escapeHtml, click, dirClick, fileClick, scrollToBottom } from './output';
 import { buildFilesystem } from './filesystem';
+
+// URL state callback — set by boot.ts
+let urlStateCallback: ((cmd: string) => void) | null = null;
+export function setUrlStateCallback(cb: (cmd: string) => void) { urlStateCallback = cb; }
 import { cmdHelp } from '../commands/help';
 import { cmdMan } from '../commands/man';
 import { cmdNeofetch } from '../commands/neofetch';
@@ -402,6 +406,11 @@ export function executeCommand(raw: string, { interactive = true } = {}) {
       if (output) appendOutput(output);
       if (lastCmdError) break;
     }
+    // Push URL state for the last meaningful command in the chain
+    if (urlStateCallback) {
+      const lastCmd = cmds[cmds.length - 1];
+      urlStateCallback(lastCmd);
+    }
     updatePrompt();
     inputEl.value = '';
     resizeInput();
@@ -509,6 +518,8 @@ export function executeCommand(raw: string, { interactive = true } = {}) {
 
   const output = executeSingle(command, args, ctx);
   if (output) appendOutput(output);
+  // Push URL state
+  if (urlStateCallback) urlStateCallback(cmd);
   updatePrompt();
   inputEl.value = '';
   resizeInput();
@@ -652,6 +663,7 @@ function updateMobileBar() {
 
 // Expose for boot sequence
 export { cwd, commandHistory, fs, fileContents, updatePrompt, resolvePath, updateMobileBar };
+export function getCwd() { return cwd; }
 export function setHistoryIndex(i: number) { historyIndex = i; }
 export function getInputArea() { return inputArea; }
 export function getInputEl() { return inputEl; }

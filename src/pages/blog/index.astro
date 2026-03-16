@@ -1,0 +1,39 @@
+---
+import { getCollection } from 'astro:content';
+import BlogLayout from '../../layouts/BlogLayout.astro';
+
+const posts = (await getCollection('blog'))
+  .filter(post => !post.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+
+<BlogLayout title="Blog — Ryan Hughes">
+  <nav class="blog-nav">
+    <span class="prompt">~/blog</span>
+    <a href="/">← terminal</a>
+  </nav>
+
+  <div class="blog-header">
+    <h1>Blog</h1>
+    <p>Thoughts on building software, self-hosting, and running businesses.</p>
+  </div>
+
+  <ul class="post-list">
+    {posts.map(post => (
+      <li class="post-list-item">
+        <a href={`/blog/${post.id.replace(/\.md$/, '')}`}>
+          <div class="post-list-title">{post.data.title}</div>
+          <div class="post-list-date">
+            {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+          </div>
+          <div class="post-list-desc">{post.data.description}</div>
+          <div class="post-tags" style="margin-top: 0.5rem;">
+            {post.data.tags.map(tag => (
+              <span class="post-tag">{tag}</span>
+            ))}
+          </div>
+        </a>
+      </li>
+    ))}
+  </ul>
+</BlogLayout>
