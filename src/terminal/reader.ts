@@ -35,7 +35,7 @@ export function openReader(title: string, content: string, filePath: string, opt
   topBar.className = 'reader-top-bar';
 
   if (isDirectAccess) {
-    topBar.innerHTML = `<span class="reader-nav"><a href="/blog" class="reader-nav-link">← blog</a><a href="/" class="reader-nav-link">← terminal</a></span><span class="reader-filename">${escapeHtml(filePath)}</span>`;
+    topBar.innerHTML = `<span class="reader-nav"><a href="/?cmd=${encodeURIComponent('cd ~/blog && ls')}" class="reader-nav-link">← blog</a><a href="/" class="reader-nav-link">← terminal</a></span><span class="reader-filename">${escapeHtml(filePath)}</span>`;
   } else {
     topBar.innerHTML = `<span class="reader-filename">${escapeHtml(filePath)}</span><span class="reader-hint">q to quit</span>`;
   }
