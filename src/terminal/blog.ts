@@ -139,7 +139,7 @@ export function buildBlogTerminalContent(post: BlogPostData): string {
   // Footer
   lines.push('');
   lines.push('<span class="tc-muted">─────────────────────────────────</span>');
-  lines.push(`<span class="tc-muted">Read the full version at </span><a href="/blog/${post.slug}" class="tc-link">/blog/${escHtml(post.slug)}</a>`);
+  lines.push(`<span class="tc-click tc-link-inline" data-cmd="read blog/${post.slug}">📖 read blog/${escHtml(post.slug)}</span>  <span class="tc-muted">·</span>  <a href="/blog/${post.slug}" class="tc-link">Open in browser →</a>`);
   lines.push(`<span class="tc-click tc-link-inline" data-cmd="cd ~/blog && ls">Back to posts</span>`);
 
   return lines.join('\n');

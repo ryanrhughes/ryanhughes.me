@@ -47,7 +47,9 @@ const { title, date, description, tags } = post.data;
   </article>
 
   <div class="terminal-easter-egg">
-    <span>🖥️ Read this in the terminal: </span>
-    <a href={`/?cmd=cat+blog/${slug}`}><code>cat blog/{slug}</code></a>
+    <a href={`/?cmd=read+blog/${slug}`} class="terminal-link" title="Open in terminal reader mode">
+      <span class="terminal-icon">⌨</span>
+      <span>View in terminal</span>
+    </a>
   </div>
 </BlogLayout>

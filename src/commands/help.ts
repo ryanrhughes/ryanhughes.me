@@ -13,6 +13,7 @@ export function cmdHelp(args: string, ctx: CommandContext): string {
  ${click('lt', 'lt', 'tc-cmd')} <span class="tc-muted">[path]</span>  file tree
  ${click('cd', 'cd ~', 'tc-cmd')} <span class="tc-muted">&lt;dir&gt;</span>   change directory
  ${click('cat', 'cat resume.txt', 'tc-cmd')} <span class="tc-muted">&lt;file&gt;</span> read file
+ ${click('read', 'read resume.txt', 'tc-cmd')} <span class="tc-muted">&lt;file&gt;</span>reader mode
  ${click('open', 'open resume.txt', 'tc-cmd')} <span class="tc-muted">&lt;file&gt;</span>open in new tab
  ${click('pwd', 'pwd', 'tc-cmd')}         working directory
  ${click('whoami', 'whoami', 'tc-cmd')}      who are you?
@@ -36,6 +37,7 @@ export function cmdHelp(args: string, ctx: CommandContext): string {
   ${click('lt', 'lt', 'tc-cmd')} <span class="tc-muted">[path]</span>         file tree
   ${click('cd', 'cd ~', 'tc-cmd')} <span class="tc-muted">&lt;dir&gt;</span>          change directory
   ${click('cat', 'cat resume.txt', 'tc-cmd')} <span class="tc-muted">&lt;file&gt;</span>        read file contents
+  ${click('read', 'read resume.txt', 'tc-cmd')} <span class="tc-muted">&lt;file&gt;</span>       open in reader mode (like less)
   ${click('open', 'open resume.txt', 'tc-cmd')} <span class="tc-muted">&lt;file&gt;</span>       open file / URLs in new tab
   ${click('pwd', 'pwd', 'tc-cmd')}              print working directory
   ${click('whoami', 'whoami', 'tc-cmd')}           who are you?

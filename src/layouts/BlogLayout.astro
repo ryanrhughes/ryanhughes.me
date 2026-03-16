@@ -271,21 +271,27 @@ const ogDescription = description || "Ryan Hughes — Builder, founder, open-sou
         color: var(--tn-comment);
       }
 
-      .terminal-easter-egg code {
-        font-family: 'JetBrains Mono', monospace;
-        background: var(--tn-bg-dark);
-        color: var(--tn-green);
-        padding: 0.15em 0.4em;
-        border-radius: 3px;
-      }
-
-      .terminal-easter-egg a {
+      .terminal-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
         color: var(--tn-cyan);
         text-decoration: none;
+        font-size: 0.85rem;
+        padding: 0.4rem 0.8rem;
+        border: 1px solid rgba(125, 207, 255, 0.2);
+        border-radius: 4px;
+        transition: all 0.15s;
       }
 
-      .terminal-easter-egg a:hover {
+      .terminal-link:hover {
+        background: rgba(125, 207, 255, 0.08);
+        border-color: rgba(125, 207, 255, 0.4);
         text-shadow: 0 0 8px rgba(125, 207, 255, 0.4);
+      }
+
+      .terminal-icon {
+        font-size: 1rem;
       }
 
       /* Blog index styles */

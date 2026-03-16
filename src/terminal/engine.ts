@@ -15,6 +15,8 @@ import { cmdHistory } from '../commands/history';
 import { cmdUptime } from '../commands/uptime';
 import { cmdBuiltin } from '../commands/builtins';
 import { cmdOpencode } from '../commands/opencode';
+import { cmdRead } from '../commands/read';
+import { isReaderOpen } from './reader';
 
 // ── State ──
 let cwd = '~';
@@ -338,6 +340,7 @@ function executeSingle(command: string, args: string, ctx: CommandContext): stri
     case 'cd': return cmdCd(args);
     case 'cat': return cmdCat(args);
     case 'open': return cmdOpen(args);
+    case 'read': case 'less': return cmdRead(args, ctx);
     case 'man': {
       const result = cmdMan(args, ctx);
       if (result.error) lastCmdError = true;
@@ -531,7 +534,7 @@ export function executeCommand(raw: string, { interactive = true } = {}) {
 function getCompletions(partial: string): string[] {
   const parts = partial.split(/\s+/);
   if (parts.length <= 1) {
-    const cmds = ['help','home','ls','ll','lt','tree','cd','cat','open','opencode','c','pwd','whoami','man','neofetch','htop','history','uptime','cowsay','clear','exit','sudo','rm','vim','nvim','emacs','nano','rails','echo','ping','ssh','date'];
+    const cmds = ['help','home','ls','ll','lt','tree','cd','cat','read','less','open','opencode','c','pwd','whoami','man','neofetch','htop','history','uptime','cowsay','clear','exit','sudo','rm','vim','nvim','emacs','nano','rails','echo','ping','ssh','date'];
     return cmds.filter(c => c.startsWith(parts[0]));
   }
   const cmd = parts[0];
@@ -570,6 +573,8 @@ export function initEngine(elements: {
   inputEl.addEventListener('input', resizeInput);
 
   inputEl.addEventListener('keydown', (e) => {
+    // Don't process terminal input while reader is open
+    if (isReaderOpen()) { e.preventDefault(); return; }
     if (e.key === 'Enter') {
       e.preventDefault();
       executeCommand(inputEl.value);
