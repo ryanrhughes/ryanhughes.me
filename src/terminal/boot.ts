@@ -232,8 +232,7 @@ export async function boot() {
   // Type and run: whoami
   await typeLine('whoami', outputEl);
   commandHistory.push('whoami');
-  appendOutput(`<span class="tc-muted">I don't know who you are… but I'm</span>
-<span class="tc-accent tc-bold" style="font-size:1.1em">Ryan Hughes</span>
+  appendOutput(`<span class="tc-accent tc-bold" style="font-size:1.1em">Ryan Hughes</span>
 <span class="tc-muted">husband · builder · founder · open-source contributor · Fort Lauderdale, FL</span>`);
 
   await sleep(300);
