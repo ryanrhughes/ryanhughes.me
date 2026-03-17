@@ -97,4 +97,4 @@ Nemotron on a single GPU is not replacing Claude Opus. That's not the question.
 
 The question is whether it's good enough for the 70% of tasks that don't need frontier intelligence — and it is. Scripts, research, routine agent work, conversational tasks. All fine. 50-60 tok/s with sub-second time to first token and a 256K context window, running on hardware I already own.
 
-I'm going to keep running it alongside my frontier models and see where the actual boundary settles. The interesting thing isn't that local models are catching up to frontier — they're not. It's that "good enough" covers way more ground than I expected.
+I'm going to keep running it alongside my frontier models and see where the actual boundary settles. The interesting thing isn't that local models are catching up to frontier — they're not, at least not yet. It's that "good enough" covers way more ground than I expected.
