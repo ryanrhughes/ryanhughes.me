@@ -114,6 +114,22 @@ function formatRealDate(dateStr: string): string {
   return `${d} ${m} ${h}:${min}`;
 }
 
+/** Sort fs entries: dirs first (alpha), then files by date (newest first) or alpha */
+function sortEntries(entries: [string, any][]): [string, any][] {
+  return entries.sort(([aName, aInfo], [bName, bInfo]) => {
+    const aDir = aInfo._type === 'dir' ? 0 : 1;
+    const bDir = bInfo._type === 'dir' ? 0 : 1;
+    if (aDir !== bDir) return aDir - bDir;
+    // If both have dates, sort newest first
+    if (aInfo.date && bInfo.date) {
+      const aTime = new Date(aInfo.date).getTime();
+      const bTime = new Date(bInfo.date).getTime();
+      if (aTime !== bTime) return bTime - aTime;
+    }
+    return aName.localeCompare(bName);
+  });
+}
+
 function cmdLs(args: string, forceAll = false): string {
   const { flags, path } = parseLsArgs(args);
   const hasA = forceAll || flags.includes('a');
@@ -128,16 +144,11 @@ function cmdLs(args: string, forceAll = false): string {
 
   const entries = fs[resolved];
 
-  // Sort: dirs first (alpha), then files (alpha), skip _type and hidden unless -a
-  const sorted = Object.entries(entries)
-    .filter(([name]) => name !== '_type')
-    .filter(([name]) => hasA || !name.startsWith('.'))
-    .sort(([aName, aInfo], [bName, bInfo]) => {
-      const aDir = (aInfo as any)._type === 'dir' ? 0 : 1;
-      const bDir = (bInfo as any)._type === 'dir' ? 0 : 1;
-      if (aDir !== bDir) return aDir - bDir;
-      return aName.localeCompare(bName);
-    });
+  const sorted = sortEntries(
+    Object.entries(entries)
+      .filter(([name]) => name !== '_type')
+      .filter(([name]) => hasA || !name.startsWith('.'))
+  );
 
   if (!hasL) {
     // Simple mode
@@ -230,7 +241,7 @@ function cmdTree(args: string): string {
   function walk(dirPath: string, prefix: string) {
     const entries = fs[dirPath];
     if (!entries) return;
-    const items = Object.entries(entries).filter(([k]) => k !== '_type');
+    const items = sortEntries(Object.entries(entries).filter(([k]) => k !== '_type'));
     items.forEach(([name, info], i) => {
       const isLast = i === items.length - 1;
       const connector = isLast ? '└── ' : '├── ';
