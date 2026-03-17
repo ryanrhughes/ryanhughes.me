@@ -1,6 +1,6 @@
 ---
 title: "Running a 120B Parameter Model in My Closet"
-date: 2026-03-16
+date: 2026-03-17
 description: "I deployed NVIDIA's Nemotron 120B on a single GPU workstation and used it as my daily driver for a weekend. Here's the real performance data and where it falls apart."
 tags: ["ai", "self-hosting", "llm", "nvidia"]
 draft: false
