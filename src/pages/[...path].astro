@@ -3,7 +3,12 @@ import Layout from '../layouts/Layout.astro';
 import '../styles/global.css';
 import { getCollection } from 'astro:content';
 
-// Fetch blog posts at build time
+// This catch-all renders the terminal for any non-blog path
+// Blog paths (/blog, /blog/*) are handled by their own pages
+
+const path = Astro.params.path || '';
+
+// Fetch blog posts at build time (same as index.astro)
 const blogPosts = (await getCollection('blog'))
   .filter(post => !post.data.draft)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -40,13 +45,7 @@ try {
     }
 
     function slugify(title: string): string {
-      return title
-        .toLowerCase()
-        .replace(/^episode\s*\d+\s*[-–—]\s*/i, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '')
-        .slice(0, 50)
-        .replace(/-$/, '');
+      return title.toLowerCase().replace(/^episode\s*\d+\s*[-–—]\s*/i, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50).replace(/-$/, '');
     }
 
     function stripHtml(html: string): string {
@@ -100,17 +99,10 @@ try {
       const duration = xmlText(item, 'itunes:duration');
       const audioUrl = xmlAttr(item, 'enclosure', 'url');
       const epNumber = Number(xmlText(item, 'itunes:episode')) || 0;
-
       return {
-        title,
-        slug: slugify(title),
-        number: epNumber,
-        description: desc,
-        summary: extractSummary(desc),
-        chapters: parseChapters(desc),
-        pubDate: formatDate(pubDate),
-        duration: formatDuration(duration),
-        audioUrl,
+        title, slug: slugify(title), number: epNumber, description: desc,
+        summary: extractSummary(desc), chapters: parseChapters(desc),
+        pubDate: formatDate(pubDate), duration: formatDuration(duration), audioUrl,
       };
     }).sort((a, b) => a.number - b.number);
 
@@ -119,13 +111,51 @@ try {
 } catch (e) {
   console.error('Podcast RSS fetch failed:', e);
 }
+
+// Generate pages for known filesystem paths
+export async function getStaticPaths() {
+  // Static terminal paths
+  const paths = [
+    'about', 'about/bio', 'about/dogs', 'about/dogs/remus', 'about/dogs/arthas',
+    'projects', 'projects/oodle', 'projects/sunset-villas', 'projects/omarchy', 'projects/third-helix',
+    'connect', 'connect/email', 'connect/linkedin', 'connect/github', 'connect/x',
+    'resume',
+    'podcast',
+    'podcast/readme',
+    'blog',
+  ];
+
+  // Fetch podcast episode slugs for deep-linking
+  try {
+    const res = await fetch('https://api.riverside.fm/hosting/okuCkBP9.rss');
+    if (res.ok) {
+      const xml = await res.text();
+      const items = xml.split('<item>').slice(1);
+      for (const item of items) {
+        const titleMatch = item.match(/<title[^>]*>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>/is);
+        if (titleMatch) {
+          const slug = titleMatch[1].toLowerCase()
+            .replace(/^episode\s*\d+\s*[-–—]\s*/i, '')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-|-$/g, '')
+            .slice(0, 50)
+            .replace(/-$/, '');
+          paths.push(`podcast/${slug}`);
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('Failed to fetch podcast slugs for static paths:', e);
+  }
+
+  return paths.map(p => ({ params: { path: p } }));
+}
 ---
 
 <Layout title="Ryan Hughes">
   <div id="crt-overlay"></div>
   <div id="terminal" class="terminal-fullscreen">
     <div id="terminal-output" class="terminal-output" role="log" aria-live="polite"></div>
-    <!-- Bottom bar: input + mobile commands -->
     <div id="bottom-bar" class="bottom-bar">
     <div id="input-area" class="terminal-input-area" style="display:none;">
       <span id="prompt" class="prompt"></span>
@@ -152,12 +182,12 @@ try {
       <button class="mobile-cmd" data-cmd="neofetch">neofetch</button>
       <button class="mobile-cmd" data-cmd="cat connect/*">connect</button>
     </div>
-    </div> <!-- /bottom-bar -->
-  </div> <!-- /terminal -->
+    </div>
+  </div>
 
   <script id="podcast-data" type="application/json" set:html={podcastJson.replace(/<\/script/gi, '<\\/script')}></script>
   <script id="blog-data" type="application/json" set:html={blogJson.replace(/<\/script/gi, '<\\/script')}></script>
-  <script id="initial-path" type="application/json" set:html={JSON.stringify("/")}></script>
+  <script id="initial-path" type="application/json" set:html={JSON.stringify(path)}></script>
   <script>
     import { boot } from '../terminal/boot';
     boot();

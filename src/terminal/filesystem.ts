@@ -1,5 +1,6 @@
 import type { FSTree } from './types';
 import { buildEpisodeHtml, buildPodcastReadme, type PodcastData } from './podcast';
+import { buildBlogTerminalContent, type BlogPostData } from './blog';
 
 // Import all .html files from src/filesystem/ at build time
 const htmlModules = import.meta.glob('/src/filesystem/**/*.html', { query: '?raw', import: 'default', eager: true });
@@ -66,13 +67,33 @@ export function buildFilesystem(): FilesystemData {
           const prev = i > 0 ? podcastData.episodes[i - 1] : null;
           const next = i < podcastData.episodes.length - 1 ? podcastData.episodes[i + 1] : null;
 
-          fs['~/podcast'][ep.slug] = { _type: 'file', icon: '\uf001' } as any;
+          fs['~/podcast'][ep.slug] = { _type: 'file', icon: '\uf001', date: ep.pubDate } as any;
           const html = buildEpisodeHtml(ep, prev, next);
           fileContents[`~/podcast/${ep.slug}`] = expandBanners(html);
         }
       }
     } catch (e) {
       console.warn('Failed to parse podcast data:', e);
+    }
+  }
+
+  // Inject blog data if available
+  const blogEl = document.getElementById('blog-data');
+  if (blogEl) {
+    try {
+      const blogPosts: BlogPostData[] = JSON.parse(blogEl.textContent || '[]');
+      if (blogPosts.length > 0) {
+        // Create ~/blog/ directory
+        fs['~']['blog'] = { _type: 'dir' } as any;
+        fs['~/blog'] = { _type: 'dir' } as any;
+
+        for (const post of blogPosts) {
+          fs['~/blog'][post.slug] = { _type: 'file', icon: '\ue609', date: post.date } as any;
+          fileContents[`~/blog/${post.slug}`] = buildBlogTerminalContent(post);
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to parse blog data:', e);
     }
   }
 

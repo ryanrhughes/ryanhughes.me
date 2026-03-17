@@ -176,17 +176,14 @@ export function buildEpisodeHtml(ep: PodcastEpisode, prev: PodcastEpisode | null
 
   // Navigation
   lines.push('<span class="tc-muted">─────────────────────────────────</span>');
-  const nav: string[] = [];
   if (prev) {
-    nav.push(`<span class="tc-click tc-link-inline" data-cmd="cat ~/podcast/${prev.slug}">← ${escPodcast(prev.title)}</span>`);
+    lines.push(`<span class="tc-click tc-link-inline" data-cmd="cat ~/podcast/${prev.slug}">Previous: ${escPodcast(prev.title)}</span>`);
   }
   if (next) {
-    nav.push(`<span class="tc-click tc-link-inline" data-cmd="cat ~/podcast/${next.slug}">${escPodcast(next.title)} →</span>`);
+    lines.push(`<span class="tc-click tc-link-inline" data-cmd="cat ~/podcast/${next.slug}">Next: ${escPodcast(next.title)}</span>`);
   }
-  if (nav.length) {
-    lines.push(nav.join('    '));
-  }
-  lines.push(`<span class="tc-click tc-link-inline" data-cmd="cd ~/podcast && ls -l">Back to episodes</span>`);
+  lines.push('');
+  lines.push(`<span class="tc-click tc-link-inline" data-cmd="cd ~/podcast && ls -l">All Episodes</span>`);
 
   return lines.join('\n');
 }

@@ -2,6 +2,10 @@ import { isMobile } from './types';
 import type { CommandContext, FSTree } from './types';
 import { appendOutput, appendCommandLine, clearOutput, escapeHtml, click, dirClick, fileClick, scrollToBottom } from './output';
 import { buildFilesystem } from './filesystem';
+
+// URL state callback — set by boot.ts
+let urlStateCallback: ((cmd: string) => void) | null = null;
+export function setUrlStateCallback(cb: (cmd: string) => void) { urlStateCallback = cb; }
 import { cmdHelp } from '../commands/help';
 import { cmdMan } from '../commands/man';
 import { cmdNeofetch } from '../commands/neofetch';
@@ -11,6 +15,8 @@ import { cmdHistory } from '../commands/history';
 import { cmdUptime } from '../commands/uptime';
 import { cmdBuiltin } from '../commands/builtins';
 import { cmdOpencode } from '../commands/opencode';
+import { cmdRead } from '../commands/read';
+import { isReaderOpen } from './reader';
 
 // ── State ──
 let cwd = '~';
@@ -96,6 +102,34 @@ function fakeDate(): string {
   return `${d} ${m} ${h}:${min}`;
 }
 
+/** Format a real date string (e.g. "March 12, 2025" or ISO) into ls-style "12 Mar 09:00" */
+function formatRealDate(dateStr: string): string {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const parsed = new Date(dateStr);
+  if (isNaN(parsed.getTime())) return fakeDate();
+  const m = months[parsed.getMonth()];
+  const d = String(parsed.getDate()).padStart(2, ' ');
+  const h = String(parsed.getHours()).padStart(2, '0');
+  const min = String(parsed.getMinutes()).padStart(2, '0');
+  return `${d} ${m} ${h}:${min}`;
+}
+
+/** Sort fs entries: dirs first (alpha), then files by date (newest first) or alpha */
+function sortEntries(entries: [string, any][]): [string, any][] {
+  return entries.sort(([aName, aInfo], [bName, bInfo]) => {
+    const aDir = aInfo._type === 'dir' ? 0 : 1;
+    const bDir = bInfo._type === 'dir' ? 0 : 1;
+    if (aDir !== bDir) return aDir - bDir;
+    // If both have dates, sort newest first
+    if (aInfo.date && bInfo.date) {
+      const aTime = new Date(aInfo.date).getTime();
+      const bTime = new Date(bInfo.date).getTime();
+      if (aTime !== bTime) return bTime - aTime;
+    }
+    return aName.localeCompare(bName);
+  });
+}
+
 function cmdLs(args: string, forceAll = false): string {
   const { flags, path } = parseLsArgs(args);
   const hasA = forceAll || flags.includes('a');
@@ -110,16 +144,11 @@ function cmdLs(args: string, forceAll = false): string {
 
   const entries = fs[resolved];
 
-  // Sort: dirs first (alpha), then files (alpha), skip _type and hidden unless -a
-  const sorted = Object.entries(entries)
-    .filter(([name]) => name !== '_type')
-    .filter(([name]) => hasA || !name.startsWith('.'))
-    .sort(([aName, aInfo], [bName, bInfo]) => {
-      const aDir = (aInfo as any)._type === 'dir' ? 0 : 1;
-      const bDir = (bInfo as any)._type === 'dir' ? 0 : 1;
-      if (aDir !== bDir) return aDir - bDir;
-      return aName.localeCompare(bName);
-    });
+  const sorted = sortEntries(
+    Object.entries(entries)
+      .filter(([name]) => name !== '_type')
+      .filter(([name]) => hasA || !name.startsWith('.'))
+  );
 
   if (!hasL) {
     // Simple mode
@@ -173,10 +202,10 @@ function cmdLs(args: string, forceAll = false): string {
     const header = `<span class="tc-muted">Perms       Size  User  Modified      Name</span>`;
     lines.push(header);
 
-    const makeLine = (perms: string, size: string, name: string) => {
+    const makeLine = (perms: string, size: string, name: string, realDate?: string) => {
       const p = colorPerms(perms);
       const s = size.padStart(4);
-      const d = fakeDate();
+      const d = realDate ? formatRealDate(realDate) : fakeDate();
       return `${p}  ${s}  <span class="tc-yellow">ryan</span>  ${d}  ${name}`;
     };
 
@@ -191,7 +220,7 @@ function cmdLs(args: string, forceAll = false): string {
       const size = isDir ? '-' : fakeSize();
       const fullPath = resolved === '~' ? name : resolved + '/' + name;
       const display = isDir ? dirClick(name, fullPath) : fileClick(name, fullPath, (info as any).icon);
-      lines.push(makeLine(perms, size, display));
+      lines.push(makeLine(perms, size, display, (info as any).date));
     }
   }
 
@@ -212,7 +241,7 @@ function cmdTree(args: string): string {
   function walk(dirPath: string, prefix: string) {
     const entries = fs[dirPath];
     if (!entries) return;
-    const items = Object.entries(entries).filter(([k]) => k !== '_type');
+    const items = sortEntries(Object.entries(entries).filter(([k]) => k !== '_type'));
     items.forEach(([name, info], i) => {
       const isLast = i === items.length - 1;
       const connector = isLast ? '└── ' : '├── ';
@@ -334,6 +363,7 @@ function executeSingle(command: string, args: string, ctx: CommandContext): stri
     case 'cd': return cmdCd(args);
     case 'cat': return cmdCat(args);
     case 'open': return cmdOpen(args);
+    case 'read': case 'less': return cmdRead(args, ctx);
     case 'man': {
       const result = cmdMan(args, ctx);
       if (result.error) lastCmdError = true;
@@ -344,6 +374,7 @@ function executeSingle(command: string, args: string, ctx: CommandContext): stri
     case 'history': return cmdHistory(args, ctx);
     case 'uptime': return cmdUptime(args, ctx);
     case 'cowsay': return cmdCowsay(args, ctx);
+    case 'omarchy': return cmdCat('~/projects/omarchy');
     case 'clear': clearOutput(); return '';
     case 'home': {
       clearOutput();
@@ -401,6 +432,11 @@ export function executeCommand(raw: string, { interactive = true } = {}) {
       let output = executeSingle(subCmd, subArgs, ctx);
       if (output) appendOutput(output);
       if (lastCmdError) break;
+    }
+    // Push URL state for the last meaningful command in the chain
+    if (urlStateCallback) {
+      const lastCmd = cmds[cmds.length - 1];
+      urlStateCallback(lastCmd);
     }
     updatePrompt();
     inputEl.value = '';
@@ -509,6 +545,8 @@ export function executeCommand(raw: string, { interactive = true } = {}) {
 
   const output = executeSingle(command, args, ctx);
   if (output) appendOutput(output);
+  // Push URL state
+  if (urlStateCallback) urlStateCallback(cmd);
   updatePrompt();
   inputEl.value = '';
   resizeInput();
@@ -520,7 +558,7 @@ export function executeCommand(raw: string, { interactive = true } = {}) {
 function getCompletions(partial: string): string[] {
   const parts = partial.split(/\s+/);
   if (parts.length <= 1) {
-    const cmds = ['help','home','ls','ll','lt','tree','cd','cat','open','opencode','c','pwd','whoami','man','neofetch','htop','history','uptime','cowsay','clear','exit','sudo','rm','vim','nvim','emacs','nano','rails','echo','ping','ssh','date'];
+    const cmds = ['help','home','ls','ll','lt','tree','cd','cat','read','less','open','opencode','c','pwd','whoami','man','neofetch','htop','history','uptime','cowsay','clear','exit','sudo','rm','vim','nvim','emacs','nano','rails','ruby','omarchy','echo','ping','ssh','date'];
     return cmds.filter(c => c.startsWith(parts[0]));
   }
   const cmd = parts[0];
@@ -559,6 +597,8 @@ export function initEngine(elements: {
   inputEl.addEventListener('input', resizeInput);
 
   inputEl.addEventListener('keydown', (e) => {
+    // Don't process terminal input while reader is open
+    if (isReaderOpen()) { e.preventDefault(); return; }
     if (e.key === 'Enter') {
       e.preventDefault();
       executeCommand(inputEl.value);
@@ -652,6 +692,7 @@ function updateMobileBar() {
 
 // Expose for boot sequence
 export { cwd, commandHistory, fs, fileContents, updatePrompt, resolvePath, updateMobileBar };
+export function getCwd() { return cwd; }
 export function setHistoryIndex(i: number) { historyIndex = i; }
 export function getInputArea() { return inputArea; }
 export function getInputEl() { return inputEl; }

@@ -1,9 +1,23 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import '../styles/global.css';
+import Layout from '../../layouts/Layout.astro';
+import '../../styles/global.css';
 import { getCollection } from 'astro:content';
 
-// Fetch blog posts at build time
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map(post => {
+    const slug = post.id.replace(/\.md$/, '');
+    return {
+      params: { slug },
+      props: { post, slug },
+    };
+  });
+}
+
+const { post, slug } = Astro.props;
+const { title, date, description, tags } = post.data;
+
+// Fetch blog posts at build time (same as index.astro)
 const blogPosts = (await getCollection('blog'))
   .filter(post => !post.data.draft)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -40,13 +54,7 @@ try {
     }
 
     function slugify(title: string): string {
-      return title
-        .toLowerCase()
-        .replace(/^episode\s*\d+\s*[-–—]\s*/i, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '')
-        .slice(0, 50)
-        .replace(/-$/, '');
+      return title.toLowerCase().replace(/^episode\s*\d+\s*[-–—]\s*/i, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50).replace(/-$/, '');
     }
 
     function stripHtml(html: string): string {
@@ -100,17 +108,10 @@ try {
       const duration = xmlText(item, 'itunes:duration');
       const audioUrl = xmlAttr(item, 'enclosure', 'url');
       const epNumber = Number(xmlText(item, 'itunes:episode')) || 0;
-
       return {
-        title,
-        slug: slugify(title),
-        number: epNumber,
-        description: desc,
-        summary: extractSummary(desc),
-        chapters: parseChapters(desc),
-        pubDate: formatDate(pubDate),
-        duration: formatDuration(duration),
-        audioUrl,
+        title, slug: slugify(title), number: epNumber, description: desc,
+        summary: extractSummary(desc), chapters: parseChapters(desc),
+        pubDate: formatDate(pubDate), duration: formatDuration(duration), audioUrl,
       };
     }).sort((a, b) => a.number - b.number);
 
@@ -119,13 +120,31 @@ try {
 } catch (e) {
   console.error('Podcast RSS fetch failed:', e);
 }
+
+const ogTitle = `${title} — Ryan Hughes`;
+const ogDescription = description || 'A blog post by Ryan Hughes';
+const ogUrl = `https://ryanhughes.me/blog/${slug}`;
+const ogImage = 'https://ryanhughes.me/images/og-image.png';
 ---
 
-<Layout title="Ryan Hughes">
+<Layout title={ogTitle}>
+  <Fragment slot="head">
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:description" content={ogDescription} />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content={ogUrl} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="description" content={ogDescription} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@ryanrhughes" />
+    <meta name="twitter:title" content={ogTitle} />
+    <meta name="twitter:description" content={ogDescription} />
+    <meta name="twitter:image" content={ogImage} />
+  </Fragment>
+
   <div id="crt-overlay"></div>
   <div id="terminal" class="terminal-fullscreen">
     <div id="terminal-output" class="terminal-output" role="log" aria-live="polite"></div>
-    <!-- Bottom bar: input + mobile commands -->
     <div id="bottom-bar" class="bottom-bar">
     <div id="input-area" class="terminal-input-area" style="display:none;">
       <span id="prompt" class="prompt"></span>
@@ -152,14 +171,15 @@ try {
       <button class="mobile-cmd" data-cmd="neofetch">neofetch</button>
       <button class="mobile-cmd" data-cmd="cat connect/*">connect</button>
     </div>
-    </div> <!-- /bottom-bar -->
-  </div> <!-- /terminal -->
+    </div>
+  </div>
 
   <script id="podcast-data" type="application/json" set:html={podcastJson.replace(/<\/script/gi, '<\\/script')}></script>
   <script id="blog-data" type="application/json" set:html={blogJson.replace(/<\/script/gi, '<\\/script')}></script>
-  <script id="initial-path" type="application/json" set:html={JSON.stringify("/")}></script>
+  <script id="initial-path" type="application/json" set:html={JSON.stringify("")}></script>
+  <script id="initial-reader" type="application/json" set:html={JSON.stringify(slug)}></script>
   <script>
-    import { boot } from '../terminal/boot';
+    import { boot } from '../../terminal/boot';
     boot();
   </script>
 </Layout>
