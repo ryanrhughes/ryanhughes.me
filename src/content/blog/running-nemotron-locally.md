@@ -63,7 +63,7 @@ Over a weekend of actual use:
 - **262K context** available — a few OpenClaw sessions maxed it out
 - **Multiple concurrent sequences** — ran 3-4 at a time without issues
 
-That throughput is faster than most cloud API calls once you factor in network latency. No rate limiting, no usage caps, no per-token billing. Once you own the hardware, inference is free.
+That throughput is faster than most cloud API calls once you factor in network latency. No rate limiting, no usage caps, no per-token billing. Once you own the hardware, inference is free — though "own the hardware" means swallowing ~$9.5K per GPU plus the rest of the system. Not nothing.
 
 ## What Actually Happened
 
