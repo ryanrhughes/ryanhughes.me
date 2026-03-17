@@ -46,7 +46,7 @@ export function cmdBuiltin(command: string, args: string, ctx: CommandContext): 
       return { output: `<span class="tc-red">🛤️  Rails is the answer.</span> <span class="tc-muted">The question doesn't matter.</span>\n\n<span class="tc-muted">Convention over configuration. Monoliths over microservices.\nShip on Friday. Sleep on Saturday. That's the way.</span>\n\n<span class="tc-green">Want to see what I build with it?</span> Try ${click('cat projects/oodle', 'cat projects/oodle', 'tc-link-inline')}` };
 
     case 'ruby':
-      return { output: `<span class="tc-red">💎 Ruby.</span> <span class="tc-muted">The language that trusts you to be an adult.</span>\n\n<span class="tc-muted">Elegant, expressive, and optimized for developer happiness.\nStill the best language for building things that matter.</span>\n\n<span class="tc-green">See what I build with it?</span> Try ${click('cat projects/oodle', 'cat projects/oodle', 'tc-link-inline')} or ${click('omarchy', 'omarchy', 'tc-link-inline')}` };
+      return { output: `<span class="tc-red">💎 Ruby.</span> <span class="tc-muted">The language that trusts you to be an adult.</span>\n\n<span class="tc-muted">Elegant, expressive, and optimized for developer happiness.\nStill the best language for building things that matter.</span>\n\n<span class="tc-green">Related:</span> ${click('cat projects/oodle', 'cat projects/oodle', 'tc-link-inline')}  ${click('omarchy', 'omarchy', 'tc-link-inline')}` };
 
     case 'echo':
       return { output: `<span class="tc-muted">${escapeHtml(args.replace(/^["']|["']$/g, ''))}</span>` };
