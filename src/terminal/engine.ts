@@ -374,6 +374,7 @@ function executeSingle(command: string, args: string, ctx: CommandContext): stri
     case 'history': return cmdHistory(args, ctx);
     case 'uptime': return cmdUptime(args, ctx);
     case 'cowsay': return cmdCowsay(args, ctx);
+    case 'omarchy': return cmdCat('~/projects/omarchy');
     case 'clear': clearOutput(); return '';
     case 'home': {
       clearOutput();
@@ -557,7 +558,7 @@ export function executeCommand(raw: string, { interactive = true } = {}) {
 function getCompletions(partial: string): string[] {
   const parts = partial.split(/\s+/);
   if (parts.length <= 1) {
-    const cmds = ['help','home','ls','ll','lt','tree','cd','cat','read','less','open','opencode','c','pwd','whoami','man','neofetch','htop','history','uptime','cowsay','clear','exit','sudo','rm','vim','nvim','emacs','nano','rails','echo','ping','ssh','date'];
+    const cmds = ['help','home','ls','ll','lt','tree','cd','cat','read','less','open','opencode','c','pwd','whoami','man','neofetch','htop','history','uptime','cowsay','clear','exit','sudo','rm','vim','nvim','emacs','nano','rails','ruby','omarchy','echo','ping','ssh','date'];
     return cmds.filter(c => c.startsWith(parts[0]));
   }
   const cmd = parts[0];
