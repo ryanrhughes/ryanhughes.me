@@ -168,6 +168,9 @@ export function buildBlogReaderHtml(post: BlogPostData): string {
   <div class="reader-post-body">
     ${markdownToReaderHtml(post.body)}
   </div>
+  <div class="reader-post-footer">
+    <a href="#" class="reader-back-link" data-reader-cmd="cd ~/blog && ls">← back to blog</a>
+  </div>
 </div>`;
 }
 

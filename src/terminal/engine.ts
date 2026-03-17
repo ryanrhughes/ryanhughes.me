@@ -102,6 +102,18 @@ function fakeDate(): string {
   return `${d} ${m} ${h}:${min}`;
 }
 
+/** Format a real date string (e.g. "March 12, 2025" or ISO) into ls-style "12 Mar 09:00" */
+function formatRealDate(dateStr: string): string {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const parsed = new Date(dateStr);
+  if (isNaN(parsed.getTime())) return fakeDate();
+  const m = months[parsed.getMonth()];
+  const d = String(parsed.getDate()).padStart(2, ' ');
+  const h = String(parsed.getHours()).padStart(2, '0');
+  const min = String(parsed.getMinutes()).padStart(2, '0');
+  return `${d} ${m} ${h}:${min}`;
+}
+
 function cmdLs(args: string, forceAll = false): string {
   const { flags, path } = parseLsArgs(args);
   const hasA = forceAll || flags.includes('a');
@@ -179,10 +191,10 @@ function cmdLs(args: string, forceAll = false): string {
     const header = `<span class="tc-muted">Perms       Size  User  Modified      Name</span>`;
     lines.push(header);
 
-    const makeLine = (perms: string, size: string, name: string) => {
+    const makeLine = (perms: string, size: string, name: string, realDate?: string) => {
       const p = colorPerms(perms);
       const s = size.padStart(4);
-      const d = fakeDate();
+      const d = realDate ? formatRealDate(realDate) : fakeDate();
       return `${p}  ${s}  <span class="tc-yellow">ryan</span>  ${d}  ${name}`;
     };
 
@@ -197,7 +209,7 @@ function cmdLs(args: string, forceAll = false): string {
       const size = isDir ? '-' : fakeSize();
       const fullPath = resolved === '~' ? name : resolved + '/' + name;
       const display = isDir ? dirClick(name, fullPath) : fileClick(name, fullPath, (info as any).icon);
-      lines.push(makeLine(perms, size, display));
+      lines.push(makeLine(perms, size, display, (info as any).date));
     }
   }
 

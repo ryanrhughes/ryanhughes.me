@@ -2,7 +2,7 @@ import { appendOutput, scrollToBottom, click, initOutput, escapeHtml, dirClick, 
 import { getPromptHTML, executeCommand, initEngine, commandHistory, setHistoryIndex, updatePrompt, updateMobileBar, fs, fileContents, getCwd, setUrlStateCallback } from './engine';
 import { cmdNeofetch } from '../commands/neofetch';
 import { getBlogPosts, buildBlogReaderHtml } from '../commands/read';
-import { openReader } from './reader';
+import { openReader, setReaderExecuteCommand } from './reader';
 import type { CommandContext } from './types';
 
 async function sleep(ms: number) { return new Promise(r => setTimeout(r, ms)); }
@@ -181,6 +181,7 @@ export async function boot() {
   // Set up URL state management
   initUrlState();
   setUrlStateCallback(pushUrlState);
+  setReaderExecuteCommand(executeCommand);
 
   // Check for ?cmd= query parameter (from blog easter egg links)
   const urlParams = new URLSearchParams(window.location.search);
@@ -198,80 +199,76 @@ export async function boot() {
   const vibes = ['a mass of open browser tabs', 'the void', 'localhost', 'somewhere with wifi', '127.0.0.1'];
   const vibe = vibes[Math.floor(Math.random() * vibes.length)];
 
-  if (hasDeepLink) {
-    // Skip the boot animation for deep links — go straight to the content
-    appendOutput(`<span class="tc-muted">Last login: ${dateStr} from ${vibe}</span>`);
-    appendOutput('');
+  // Determine post-boot navigation command for deep links
+  let postBootCmd: (() => void) | null = null;
 
-    // Show input first
-    setHistoryIndex(commandHistory.length);
-    updatePrompt();
-    inputArea.style.display = 'flex';
-
-    // Navigate to the deep-linked path, execute cmd parameter, or open reader
-    if (initialReaderSlug) {
-      // Direct blog URL — open the reader overlay directly
+  if (initialReaderSlug) {
+    // Direct blog URL — open the reader overlay after boot
+    postBootCmd = () => {
       const posts = getBlogPosts();
       const post = posts.find(p => p.slug === initialReaderSlug);
       if (post) {
         const html = buildBlogReaderHtml(post);
-        openReader(post.title, html, `blog/${initialReaderSlug}`, { directAccess: true });
+        openReader(post.title, html, `blog/${initialReaderSlug}`);
       }
-    } else if (cmdParam) {
-      executeCommand(cmdParam, { interactive: false });
-    } else {
-      navigateToPath(initialPath);
-    }
+    };
+  } else if (cmdParam) {
+    postBootCmd = () => executeCommand(cmdParam, { interactive: false });
+  } else if (hasDeepLink) {
+    postBootCmd = () => navigateToPath(initialPath);
+  }
 
-    inputEl.focus();
-    updateMobileBar();
-    scrollToBottom();
-  } else {
-    // Full boot sequence for the home page
-    // ASCII banner — scaled to fit viewport
-    appendOutput(`<span class="ascii-banner tc-purple tc-bold"> ____                    _   _             _
+  // Full boot sequence — always play the animation
+  // ASCII banner
+  appendOutput(`<span class="ascii-banner tc-purple tc-bold"> ____                    _   _             _
 |  _ \\ _   _  __ _ _ __ | | | |_   _  __ _| |__   ___  ___
 | |_) | | | |/ _\` | '_ \\| |_| | | | |/ _\` | '_ \\ / _ \\/ __|
 |  _ <| |_| | (_| | | | |  _  | |_| | (_| | | | |  __/\\__ \\
 |_| \\_\\\\__, |\\__,_|_| |_|_| |_|\\__,_|\\__, |_| |_|\\___||___/
        |___/                          |___/</span>`);
 
-    await sleep(400);
+  await sleep(400);
 
-    // Type and run: whoami
-    await typeLine('whoami', outputEl);
-    commandHistory.push('whoami');
-    appendOutput(`<span class="tc-accent tc-bold" style="font-size:1.1em">Ryan Hughes</span>
+  // Type and run: whoami
+  await typeLine('whoami', outputEl);
+  commandHistory.push('whoami');
+  appendOutput(`<span class="tc-accent tc-bold" style="font-size:1.1em">Ryan Hughes</span>
 <span class="tc-muted">husband · builder · founder · open-source contributor · Fort Lauderdale, FL</span>`);
 
-    await sleep(300);
+  await sleep(300);
 
-    // Type and run: neofetch
-    await typeLine('neofetch', outputEl);
-    commandHistory.push('neofetch');
+  // Type and run: neofetch
+  await typeLine('neofetch', outputEl);
+  commandHistory.push('neofetch');
 
-    const ctx: CommandContext = {
-      cwd: '~', commandHistory, startTime: Date.now(), fs, fileContents,
-      click, dirClick, fileClick, escapeHtml,
-      resolvePath: (s: string) => s
-    };
-    appendOutput(cmdNeofetch('', ctx));
+  const ctx: CommandContext = {
+    cwd: '~', commandHistory, startTime: Date.now(), fs, fileContents,
+    click, dirClick, fileClick, escapeHtml,
+    resolvePath: (s: string) => s
+  };
+  appendOutput(cmdNeofetch('', ctx));
 
-    await sleep(400);
+  await sleep(400);
 
-    // MOTD
-    appendOutput(`<span class="tc-muted">Last login: ${dateStr} from ${vibe}</span>
+  // MOTD
+  appendOutput(`<span class="tc-muted">Last login: ${dateStr} from ${vibe}</span>
 
 <span class="tc-white">Welcome.</span> <span class="tc-muted">Type ${click('help', 'help', 'tc-link-inline')} for commands, or just click anything highlighted.</span>
 <span class="tc-muted">Try: ${click('ls', 'ls', 'tc-link-inline')}  ${click('lt', 'lt', 'tc-link-inline')}  ${click('man ryan', 'man ryan', 'tc-link-inline')}  ${click('cat resume.txt', 'cat resume.txt', 'tc-link-inline')}  ${click('cat connect/*', 'cat connect/*', 'tc-link-inline')}</span>
 `);
 
-    // Show input
-    setHistoryIndex(commandHistory.length);
-    updatePrompt();
-    inputArea.style.display = 'flex';
-    inputEl.focus();
-    updateMobileBar();
+  // Show input
+  setHistoryIndex(commandHistory.length);
+  updatePrompt();
+  inputArea.style.display = 'flex';
+  inputEl.focus();
+  updateMobileBar();
+  scrollToBottom();
+
+  // Navigate to deep-linked content after boot animation completes
+  if (postBootCmd) {
+    await sleep(200);
+    postBootCmd();
     scrollToBottom();
   }
 }

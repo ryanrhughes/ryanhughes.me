@@ -6,21 +6,22 @@
 let overlay: HTMLElement | null = null;
 let contentEl: HTMLElement | null = null;
 let statusEl: HTMLElement | null = null;
-let previousUrl: string | null = null;
 let keyHandler: ((e: KeyboardEvent) => void) | null = null;
-let isDirectAccess = false;
+let onCloseCmd: string | null = null;
+let executeCommandFn: ((cmd: string, opts?: any) => string) | null = null;
 
+/** Register the executeCommand function so the reader can run commands on close */
+export function setReaderExecuteCommand(fn: (cmd: string, opts?: any) => string) {
+  executeCommandFn = fn;
+}
 /** Check if the reader overlay is currently open */
 export function isReaderOpen(): boolean {
   return overlay !== null;
 }
 
 /** Open the reader overlay with rendered HTML content */
-export function openReader(title: string, content: string, filePath: string, options?: { directAccess?: boolean }) {
+export function openReader(title: string, content: string, filePath: string) {
   if (overlay) closeReader();
-
-  isDirectAccess = options?.directAccess ?? false;
-  previousUrl = window.location.pathname + window.location.search;
 
   // Create overlay
   overlay = document.createElement('div');
@@ -33,12 +34,7 @@ export function openReader(title: string, content: string, filePath: string, opt
   // Top bar (like less status)
   const topBar = document.createElement('div');
   topBar.className = 'reader-top-bar';
-
-  if (isDirectAccess) {
-    topBar.innerHTML = `<span class="reader-nav"><a href="/?cmd=${encodeURIComponent('cd ~/blog && ls')}" class="reader-nav-link">← blog</a><a href="/" class="reader-nav-link">← terminal</a></span><span class="reader-filename">${escapeHtml(filePath)}</span>`;
-  } else {
-    topBar.innerHTML = `<span class="reader-filename">${escapeHtml(filePath)}</span><span class="reader-hint">q to quit</span>`;
-  }
+  topBar.innerHTML = `<span class="reader-filename">${escapeHtml(filePath)}</span><span class="reader-hint">q to quit</span>`;
 
   // Content area — inner wrapper for max-width while keeping scrollbar at viewport edge
   contentEl = document.createElement('div');
@@ -62,6 +58,16 @@ export function openReader(title: string, content: string, filePath: string, opt
     overlay?.classList.add('reader-visible');
   });
 
+  // Handle data-reader-cmd links — close reader and run command
+  overlay.addEventListener('click', (e) => {
+    const link = (e.target as HTMLElement).closest('[data-reader-cmd]') as HTMLElement | null;
+    if (link) {
+      e.preventDefault();
+      onCloseCmd = link.getAttribute('data-reader-cmd');
+      closeReader();
+    }
+  });
+
   // Update scroll status on scroll
   contentEl.addEventListener('scroll', updateStatus);
 
@@ -77,22 +83,10 @@ export function openReader(title: string, content: string, filePath: string, opt
 
     switch (e.key) {
       case 'q':
-        e.preventDefault();
-        e.stopPropagation();
-        if (isDirectAccess) {
-          window.location.href = '/';
-        } else {
-          closeReader();
-        }
-        break;
       case 'Escape':
         e.preventDefault();
         e.stopPropagation();
-        if (isDirectAccess) {
-          window.location.href = '/blog';
-        } else {
-          closeReader();
-        }
+        closeReader();
         break;
       case ' ':
       case 'PageDown':
@@ -119,7 +113,6 @@ export function openReader(title: string, content: string, filePath: string, opt
           e.preventDefault();
           contentEl.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
-          // G (shift+g) — scroll to bottom
           e.preventDefault();
           contentEl.scrollTo({ top: contentEl.scrollHeight, behavior: 'smooth' });
         }
@@ -137,7 +130,6 @@ export function openReader(title: string, content: string, filePath: string, opt
         contentEl.scrollTo({ top: contentEl.scrollHeight, behavior: 'smooth' });
         break;
       default:
-        // Ignore other keys — don't pass to terminal
         e.preventDefault();
         e.stopPropagation();
         break;
@@ -147,16 +139,7 @@ export function openReader(title: string, content: string, filePath: string, opt
   // Capture at the document level so terminal doesn't get events
   document.addEventListener('keydown', keyHandler, true);
 
-  // Push URL state — for blog posts use /blog/slug, for others use ?view=reader
-  const blogMatch = filePath.match(/^(?:~\/)?blog\/(.+)$/);
-  if (blogMatch) {
-    history.pushState({ reader: true, filePath }, '', `/blog/${blogMatch[1]}`);
-  } else {
-    const cleanPath = filePath.replace(/^~\//, '').replace(/\.txt$/, '');
-    history.pushState({ reader: true, filePath }, '', `/${cleanPath}?view=reader`);
-  }
-
-  // Listen for popstate to close reader on back
+  // Listen for popstate to close reader on back (e.g. if user hits browser back)
   window.addEventListener('popstate', onPopState);
 
   // Initial status update
@@ -182,7 +165,7 @@ function updateStatus() {
 
 function onPopState() {
   if (overlay) {
-    closeReader(true); // true = don't manipulate history
+    closeReader(true);
   }
 }
 
@@ -209,20 +192,12 @@ export function closeReader(fromPopState = false) {
   contentEl = null;
   statusEl = null;
 
-  // For direct access, navigate away instead of restoring
-  if (isDirectAccess && !fromPopState) {
-    isDirectAccess = false;
-    previousUrl = null;
-    window.location.href = '/';
-    return;
+  // Execute pending command if set (e.g. from "← back to blog" link)
+  const pendingCmd = onCloseCmd;
+  onCloseCmd = null;
+  if (pendingCmd && executeCommandFn) {
+    executeCommandFn(pendingCmd, { interactive: false });
   }
-
-  // Restore URL
-  if (!fromPopState && previousUrl) {
-    history.pushState(null, '', previousUrl);
-  }
-  previousUrl = null;
-  isDirectAccess = false;
 
   // Restore terminal focus
   const input = document.getElementById('terminal-input') as HTMLInputElement | null;

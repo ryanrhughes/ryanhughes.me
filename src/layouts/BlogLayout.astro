@@ -33,7 +33,7 @@ const ogDescription = description || "Ryan Hughes — Builder, founder, open-sou
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <script defer src="https://cloud.umami.is/script.js" data-website-id="3d0168ef-9391-4259-b568-a49b112e5574"></script>
+    {!import.meta.env.DEV && <script defer src="https://cloud.umami.is/script.js" data-website-id="3d0168ef-9391-4259-b568-a49b112e5574"></script>}
     <title>{title}</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');

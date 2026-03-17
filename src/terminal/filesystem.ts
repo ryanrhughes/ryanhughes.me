@@ -67,7 +67,7 @@ export function buildFilesystem(): FilesystemData {
           const prev = i > 0 ? podcastData.episodes[i - 1] : null;
           const next = i < podcastData.episodes.length - 1 ? podcastData.episodes[i + 1] : null;
 
-          fs['~/podcast'][ep.slug] = { _type: 'file', icon: '\uf001' } as any;
+          fs['~/podcast'][ep.slug] = { _type: 'file', icon: '\uf001', date: ep.pubDate } as any;
           const html = buildEpisodeHtml(ep, prev, next);
           fileContents[`~/podcast/${ep.slug}`] = expandBanners(html);
         }
@@ -88,7 +88,7 @@ export function buildFilesystem(): FilesystemData {
         fs['~/blog'] = { _type: 'dir' } as any;
 
         for (const post of blogPosts) {
-          fs['~/blog'][post.slug] = { _type: 'file', icon: '\ue609' } as any;
+          fs['~/blog'][post.slug] = { _type: 'file', icon: '\ue609', date: post.date } as any;
           fileContents[`~/blog/${post.slug}`] = buildBlogTerminalContent(post);
         }
       }
