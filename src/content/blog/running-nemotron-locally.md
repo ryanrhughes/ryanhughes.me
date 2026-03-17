@@ -61,7 +61,7 @@ Over a weekend of actual use:
 - **50–60 tokens/second** consistently, high of 74 tok/s
 - **Sub-1 second TTFT**, even with ~50K tokens of context loaded
 - **262K context** available — a few OpenClaw sessions maxed it out
-- **8 concurrent sequences** without issues
+- **Multiple concurrent sequences** — ran 3-4 at a time without issues
 
 That throughput is faster than most cloud API calls once you factor in network latency. No rate limiting, no usage caps, no per-token billing. Once you own the hardware, inference is free.
 
