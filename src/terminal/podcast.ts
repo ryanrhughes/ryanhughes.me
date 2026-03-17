@@ -177,12 +177,13 @@ export function buildEpisodeHtml(ep: PodcastEpisode, prev: PodcastEpisode | null
   // Navigation
   lines.push('<span class="tc-muted">─────────────────────────────────</span>');
   if (prev) {
-    lines.push(`<span class="tc-click tc-link-inline" data-cmd="cat ~/podcast/${prev.slug}">← ${escPodcast(prev.title)}</span>`);
+    lines.push(`<span class="tc-click tc-link-inline" data-cmd="cat ~/podcast/${prev.slug}">Previous: ${escPodcast(prev.title)}</span>`);
   }
   if (next) {
-    lines.push(`<span class="tc-click tc-link-inline" data-cmd="cat ~/podcast/${next.slug}">${escPodcast(next.title)} →</span>`);
+    lines.push(`<span class="tc-click tc-link-inline" data-cmd="cat ~/podcast/${next.slug}">Next: ${escPodcast(next.title)}</span>`);
   }
-  lines.push(`<span class="tc-click tc-link-inline" data-cmd="cd ~/podcast && ls -l">Back to episodes</span>`);
+  lines.push('');
+  lines.push(`<span class="tc-click tc-link-inline" data-cmd="cd ~/podcast && ls -l">All Episodes</span>`);
 
   return lines.join('\n');
 }
