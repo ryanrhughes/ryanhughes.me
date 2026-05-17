@@ -1,6 +1,7 @@
 ---
 title: "Building a Ridiculous Omarchy PC in a Fractal Terra"
-date: 2026-05-17
+date: 2025-09-13
+updated: 2026-05-17
 description: "I built a custom Omarchy machine inside a Fractal Terra with a Ryzen 9 9950X3D, RTX 5090, Noctua low-profile cooler, and almost no unused space."
 tags: ["omarchy", "linux", "pc-build", "hardware"]
 draft: false

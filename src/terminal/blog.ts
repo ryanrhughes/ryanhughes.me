@@ -3,6 +3,7 @@ export interface BlogPostData {
   slug: string;
   title: string;
   date: string;
+  updated?: string;
   description: string;
   tags: string[];
   body: string;
@@ -57,6 +58,14 @@ function markdownToTerminal(md: string): string {
       result.push('');
       result.push(`<span class="tc-blue tc-bold">${escHtml(line.slice(4))}</span>`);
       result.push('');
+      continue;
+    }
+
+    // Images ![alt](url)
+    const imageMatch = line.match(/^!\[(.*?)\]\((.+?)\)$/);
+    if (imageMatch) {
+      if (inList) { inList = false; }
+      result.push(`<img src="${escHtml(imageMatch[2])}" alt="${escHtml(imageMatch[1])}" class="reader-inline-image" loading="lazy" />`);
       continue;
     }
 
@@ -115,6 +124,8 @@ function formatInline(text: string): string {
   out = out.replace(/\*(.+?)\*/g, '<span class="tc-yellow">$1</span>');
   // Inline code
   out = out.replace(/`(.+?)`/g, '<span class="tc-green">$1</span>');
+  // Images ![alt](url)
+  out = out.replace(/!\[(.*?)\]\((.+?)\)/g, '<img src="$2" alt="$1" class="reader-inline-image" loading="lazy" />');
   // Links [text](url)
   out = out.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="tc-link" target="_blank">$1</a>');
   return out;
@@ -126,7 +137,9 @@ export function buildBlogTerminalContent(post: BlogPostData): string {
   // Header banner
   lines.push(`<span class="tc-banner" role="heading" aria-level="2">${escHtml(post.title)}</span>`);
   lines.push('');
-  lines.push(`<span class="tc-muted">${post.date}  ·  ${post.tags.map(t => `#${t}`).join(' ')}</span>`);
+  const dateParts = [post.date];
+  if (post.updated) dateParts.push(`Updated ${post.updated}`);
+  lines.push(`<span class="tc-muted">${dateParts.join('  ·  ')}  ·  ${post.tags.map(t => `#${t}`).join(' ')}</span>`);
   lines.push('');
   lines.push(`<span class="tc-accent">${escHtml(post.description)}</span>`);
   lines.push('');

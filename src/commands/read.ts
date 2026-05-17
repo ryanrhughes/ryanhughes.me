@@ -10,6 +10,7 @@ interface BlogPostData {
   slug: string;
   title: string;
   date: string;
+  updated?: string;
   description: string;
   tags: string[];
   body: string;
@@ -73,6 +74,14 @@ function markdownToReaderHtml(md: string): string {
     if (line.startsWith('# ')) {
       closeList();
       result.push(`<h1>${formatInline(line.slice(2))}</h1>`);
+      continue;
+    }
+
+    // Images
+    const imageMatch = line.match(/^!\[(.*?)\]\((.+?)\)$/);
+    if (imageMatch) {
+      closeList();
+      result.push(`<figure><img src="${escHtml(imageMatch[2])}" alt="${escHtml(imageMatch[1])}" loading="lazy" /><figcaption>${escHtml(imageMatch[1])}</figcaption></figure>`);
       continue;
     }
 
@@ -140,6 +149,8 @@ function formatInline(text: string): string {
   out = out.replace(/\*(.+?)\*/g, '<em>$1</em>');
   // Inline code
   out = out.replace(/`(.+?)`/g, '<code>$1</code>');
+  // Images ![alt](url)
+  out = out.replace(/!\[(.*?)\]\((.+?)\)/g, '<img src="$2" alt="$1" loading="lazy" />');
   // Links [text](url)
   out = out.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
   return out;
@@ -161,7 +172,7 @@ export function buildBlogReaderHtml(post: BlogPostData): string {
   return `<div class="reader-blog-post">
   <div class="reader-post-meta">
     <h1 class="reader-post-title">${escHtml(post.title)}</h1>
-    <div class="reader-post-date">${escHtml(post.date)}</div>
+    <div class="reader-post-date">${escHtml(post.date)}${post.updated ? ` · Updated ${escHtml(post.updated)}` : ''}</div>
     <div class="reader-post-description">${escHtml(post.description)}</div>
     ${post.tags.length > 0 ? `<div class="reader-post-tags">${post.tags.map(t => `<span class="reader-post-tag">${escHtml(t)}</span>`).join('')}</div>` : ''}
   </div>

@@ -17,6 +17,7 @@ const blogJson = JSON.stringify(blogPosts.map(post => ({
   slug: post.id.replace(/\.md$/, ''),
   title: post.data.title,
   date: post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+  updated: post.data.updated?.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
   description: post.data.description,
   tags: post.data.tags,
   body: post.body,
