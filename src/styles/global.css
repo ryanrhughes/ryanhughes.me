@@ -744,17 +744,33 @@ html, body {
   font-style: italic;
 }
 
-.reader-post-body ul, .reader-post-body ol {
-  padding-left: 1.5rem;
+.reader-post-body ul,
+.reader-post-body ol {
+  padding-left: 1.75rem;
   margin-bottom: 1.25rem;
+  list-style-position: outside;
+}
+
+.reader-post-body ul {
+  list-style-type: disc;
+}
+
+.reader-post-body ol {
+  list-style-type: decimal;
 }
 
 .reader-post-body li {
+  padding-left: 0.25rem;
   margin-bottom: 0.5rem;
+}
+
+.reader-post-body li:last-child {
+  margin-bottom: 0;
 }
 
 .reader-post-body li::marker {
   color: var(--color-tn-cyan);
+  font-weight: 600;
 }
 
 .reader-post-body hr {
