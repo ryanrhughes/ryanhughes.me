@@ -8,13 +8,13 @@ draft: false
 
 I love HEY. My team loves Gmail. DNS would prefer that we stop arguing and pick one.
 
-When [HEY for Domains](https://www.hey.com/domains/) launched, I wanted my work email there immediately. Convincing an entire company to abandon Google Workspace because I was excited about the Screener was, for some reason, a harder sell.
+When [HEY for Domains](https://www.hey.com/domains/) launched, I wanted my work email there immediately. Convincing my entire team to abandon Google Workspace because I was excited about the Screener proved challenging. It's my company, but "I like this inbox better" is not much of a migration plan.
 
 So I made Google Workspace the mailroom and HEY my actual inbox.
 
 Mail hits Google first. Gmail keeps its copy. Google's dual-delivery routing sends another copy to HEY. Everyone else keeps working exactly as before, while I get to pretend the company made the correct email decision.
 
-> I originally wrote this in 2025 and rechecked it against the current Google and HEY documentation in August 2026. Google still supports the dual-delivery machinery. HEY still says the whole company needs to switch. This hybrid arrangement is not supported by HEY, and I make no guarantees about what it may do to your very important email. The screenshots are from Google's 2025 Admin console, so treat them as landmarks rather than exact current labels.
+> Disclaimer: This is not an officially sanctioned or recommended HEY and Google Workspace configuration. It is, however, the setup I've been using for a couple of years without issue. Use it at your own discretion.
 
 ## What This Setup Actually Does
 
@@ -109,10 +109,19 @@ Email routing is not finished when one message from your personal Gmail account 
 - A Google Group or shared address
 - Every alias and secondary domain you added
 - Replies sent from HEY with the correct From address
+- Reply-all messages with non-HEY recipients CCed
 - BCC messages and automated notifications
 - Spam handling and bounces
 
 Also check SPF, DKIM, and DMARC after the change. Google and HEY may both send mail for the domain, so both systems need to authenticate correctly. One bad DNS edit can make a setup look perfect from your inbox while everyone else's spam folder tells a different story.
+
+## The Known CC Quirk
+
+When you reply to an email in HEY, anyone CCed who is not a user in your HEY account is automatically removed. That makes complete sense when HEY is being used as intended and the whole company lives there. In this hybrid setup, it means coworkers who stayed in Google Workspace can quietly disappear from the reply.
+
+Check the CC field before sending. If those people still need to be part of the conversation, add them back manually.
+
+I have come to appreciate this as a useful little checkpoint: does everyone on this email actually need to be here? Often the answer is no. When the answer is yes, it takes a few seconds to put them back.
 
 ## What You Give Up
 
