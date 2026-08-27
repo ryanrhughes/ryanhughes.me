@@ -1,0 +1,25 @@
+---
+import Layout from '../layouts/Layout.astro';
+import '../styles/global.css';
+import { absoluteUrl, SITE_TITLE } from '../lib/site';
+---
+<Layout
+  title={`404 — ${SITE_TITLE}`}
+  description="That path doesn't exist on this machine."
+  canonical={absoluteUrl('404')}
+  documentClass="doc-scroll"
+>
+  <div class="noscript-content">
+    <h1>404</h1>
+    <pre>bash: cd: no such file or directory
+
+The path you asked for isn't on this machine.</pre>
+    <ul>
+      <li><a href={absoluteUrl('')}>Home</a></li>
+      <li><a href={absoluteUrl('about/bio')}>Bio</a></li>
+      <li><a href={absoluteUrl('projects')}>Projects</a></li>
+      <li><a href={absoluteUrl('podcast')}>Podcast</a></li>
+      <li><a href={absoluteUrl('blog')}>Blog</a></li>
+    </ul>
+  </div>
+</Layout>

@@ -3,15 +3,17 @@
  * Opens over the terminal, captures keyboard input, closes with `q` or `Escape`.
  */
 
+import { initPodcastPlayer } from './output';
+
 let overlay: HTMLElement | null = null;
 let contentEl: HTMLElement | null = null;
 let statusEl: HTMLElement | null = null;
 let keyHandler: ((e: KeyboardEvent) => void) | null = null;
 let onCloseCmd: string | null = null;
-let executeCommandFn: ((cmd: string, opts?: any) => string) | null = null;
+let executeCommandFn: ((cmd: string, opts?: any) => void) | null = null;
 
 /** Register the executeCommand function so the reader can run commands on close */
-export function setReaderExecuteCommand(fn: (cmd: string, opts?: any) => string) {
+export function setReaderExecuteCommand(fn: (cmd: string, opts?: any) => void) {
   executeCommandFn = fn;
 }
 /** Check if the reader overlay is currently open */
@@ -41,6 +43,8 @@ export function openReader(title: string, content: string, filePath: string) {
   contentEl.className = 'reader-content';
   contentEl.innerHTML = `<div class="reader-content-inner">${content}</div>`;
   contentEl.tabIndex = 0;
+  // Podcast episodes opened here carry a player and chapter list of their own
+  contentEl.querySelectorAll('.podcast-player').forEach(initPodcastPlayer);
 
   // Bottom status bar
   statusEl = document.createElement('div');

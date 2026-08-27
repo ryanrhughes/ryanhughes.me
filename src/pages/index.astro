@@ -2,36 +2,26 @@
 import Layout from '../layouts/Layout.astro';
 import '../styles/global.css';
 import { PODCAST_RSS_URL, parsePodcastFeed } from '../lib/podcast-rss';
-import { getCollection } from 'astro:content';
+import { getPageMeta } from '../lib/page-meta';
+import { getPublishedPosts, toBlogJson, toBlogList } from '../lib/blog-data';
 
-// Fetch blog posts at build time
-const blogPosts = (await getCollection('blog'))
-  .filter(post => !post.data.draft)
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const posts = await getPublishedPosts();
+const blogJson = toBlogJson(posts);
 
-const blogJson = JSON.stringify(blogPosts.map(post => ({
-  slug: post.id.replace(/\.md$/, ''),
-  title: post.data.title,
-  date: post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-  updated: post.data.updated?.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-  description: post.data.description,
-  tags: post.data.tags,
-  body: post.body,
-})));
+// Fetch podcast RSS at build time. A silent failure here would ship the site
+// with the podcast section quietly missing, so let it break the build.
+const res = await fetch(PODCAST_RSS_URL);
+if (!res.ok) throw new Error(`Podcast RSS fetch failed: ${res.status} ${res.statusText}`);
+const podcastData = parsePodcastFeed(await res.text());
+const podcastJson = JSON.stringify(podcastData);
 
-// Fetch podcast RSS at build time
-let podcastJson = 'null';
-try {
-  const res = await fetch(PODCAST_RSS_URL);
-  if (res.ok) {
-    podcastJson = JSON.stringify(parsePodcastFeed(await res.text()));
-  }
-} catch (e) {
-  console.error('Podcast RSS fetch failed:', e);
-}
+const meta = getPageMeta('', { podcast: podcastData, posts: toBlogList(posts) }, import.meta.env.BASE_URL);
 ---
+<Layout title={meta.title} description={meta.description} canonical={meta.canonical}>
+  <noscript>
+    <div class="noscript-content" set:html={meta.noscript}></div>
+  </noscript>
 
-<Layout title="Ryan Hughes">
   <div id="crt-overlay"></div>
   <div id="terminal" class="terminal-fullscreen">
     <div id="terminal-output" class="terminal-output" role="log" aria-live="polite"></div>

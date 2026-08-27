@@ -2,7 +2,9 @@
 import Layout from '../../layouts/Layout.astro';
 import '../../styles/global.css';
 import { PODCAST_RSS_URL, parsePodcastFeed } from '../../lib/podcast-rss';
-import { getCollection } from 'astro:content';
+import { getPublishedPosts, toBlogJson } from '../../lib/blog-data';
+import { absoluteUrl } from '../../lib/site';
+import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
@@ -16,58 +18,41 @@ export async function getStaticPaths() {
 }
 
 const { post, slug } = Astro.props;
-const { title, date, description, tags } = post.data;
+const { title, description } = post.data;
 
-// Fetch blog posts at build time (same as index.astro)
-const blogPosts = (await getCollection('blog'))
-  .filter(post => !post.data.draft)
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const blogJson = toBlogJson(await getPublishedPosts());
 
-const blogJson = JSON.stringify(blogPosts.map(post => ({
-  slug: post.id.replace(/\.md$/, ''),
-  title: post.data.title,
-  date: post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-  updated: post.data.updated?.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-  description: post.data.description,
-  tags: post.data.tags,
-  body: post.body,
-})));
+// Fetch podcast RSS at build time. A silent failure here would ship the site
+// with the podcast section quietly missing, so let it break the build.
+const res = await fetch(PODCAST_RSS_URL);
+if (!res.ok) throw new Error(`Podcast RSS fetch failed: ${res.status} ${res.statusText}`);
+const podcastJson = JSON.stringify(parsePodcastFeed(await res.text()));
 
-// Fetch podcast RSS at build time
-let podcastJson = 'null';
-try {
-  const res = await fetch(PODCAST_RSS_URL);
-  if (res.ok) {
-    podcastJson = JSON.stringify(parsePodcastFeed(await res.text()));
-  }
-} catch (e) {
-  console.error('Podcast RSS fetch failed:', e);
-}
+// The article itself, rendered for the no-JS mirror
+const { Content } = await render(post);
 
 const ogTitle = `${title} — Ryan Hughes`;
 const ogDescription = description || 'A blog post by Ryan Hughes';
-const ogUrl = `https://ryanhughes.me/blog/${slug}`;
-const ogImage = 'https://ryanhughes.me/images/og-image.png';
+const canonical = absoluteUrl(`blog/${slug}`);
 const publishedTime = post.data.date.toISOString();
 const modifiedTime = post.data.updated?.toISOString();
 ---
+<Layout
+  title={ogTitle}
+  description={ogDescription}
+  canonical={canonical}
+  ogType="article"
+  publishedTime={publishedTime}
+  modifiedTime={modifiedTime}
+>
 
-<Layout title={ogTitle}>
-  <Fragment slot="head">
-    <meta property="og:title" content={ogTitle} />
-    <meta property="og:description" content={ogDescription} />
-    <meta property="og:type" content="article" />
-    <meta property="og:url" content={ogUrl} />
-    <meta property="og:image" content={ogImage} />
-    <meta property="article:published_time" content={publishedTime} />
-    {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
-    <meta name="description" content={ogDescription} />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@ryanrhughes" />
-    <meta name="twitter:title" content={ogTitle} />
-    <meta name="twitter:description" content={ogDescription} />
-    <meta name="twitter:image" content={ogImage} />
-  </Fragment>
+  <noscript>
+    <div class="noscript-content">
+      <h1>{title}</h1>
+      <p>{post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+      <Content />
+    </div>
+  </noscript>
 
   <div id="crt-overlay"></div>
   <div id="terminal" class="terminal-fullscreen">

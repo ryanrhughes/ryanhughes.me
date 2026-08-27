@@ -116,7 +116,7 @@ function formatTime(s: number): string {
 const PLAY_ICON = '&#xf040a;';
 const PAUSE_ICON = '&#xf03e4;';
 
-function initPodcastPlayer(el: Element) {
+export function initPodcastPlayer(el: Element) {
   const container = el as HTMLElement;
   const src = container.dataset.src;
   if (!src) return;
@@ -128,9 +128,11 @@ function initPodcastPlayer(el: Element) {
   const currentTime = container.querySelector('.pp-current') as HTMLElement;
   const durationEl = container.querySelector('.pp-duration') as HTMLElement;
   const barWrap = container.querySelector('.pp-bar-wrap') as HTMLElement;
-  // Chapter rows live in the same output block as the player they drive
+  // Chapter rows live alongside the player they drive — in an output block in
+  // the terminal, or in the content pane when opened through the reader
+  const scope = container.closest('.output-block, .reader-content-inner');
   const chapters = Array.from(
-    container.closest('.output-block')?.querySelectorAll<HTMLElement>('.tc-chapter-link[data-seek]') ?? []
+    scope?.querySelectorAll<HTMLElement>('.tc-chapter-link[data-seek]') ?? []
   );
 
   let audio: HTMLAudioElement | null = null;
