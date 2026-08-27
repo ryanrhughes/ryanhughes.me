@@ -105,6 +105,35 @@ html, body {
   display: block;
 }
 
+/* Clickable chapter — seeks the episode player above it */
+.tc-chapter-link {
+  cursor: pointer;
+}
+
+.tc-chapter-link .pp-chapter-time {
+  color: var(--color-tn-cyan);
+}
+
+.tc-chapter-link:hover,
+.tc-chapter-link:focus-visible {
+  color: var(--color-tn-cyan);
+  outline: none;
+}
+
+.tc-chapter-link:focus-visible {
+  text-decoration: underline;
+}
+
+/* Chapter currently playing */
+.tc-chapter-link.is-playing {
+  color: var(--color-tn-cyan);
+}
+
+.tc-chapter-link.is-playing .pp-chapter-time {
+  color: var(--color-tn-green);
+  font-weight: 700;
+}
+
 .command-echo {
   color: var(--color-tn-fg);
 }

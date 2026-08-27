@@ -113,6 +113,9 @@ function formatTime(s: number): string {
   return `${m}:${sec.toString().padStart(2, '0')}`;
 }
 
+const PLAY_ICON = '&#xf040a;';
+const PAUSE_ICON = '&#xf03e4;';
+
 function initPodcastPlayer(el: Element) {
   const container = el as HTMLElement;
   const src = container.dataset.src;
@@ -125,9 +128,12 @@ function initPodcastPlayer(el: Element) {
   const currentTime = container.querySelector('.pp-current') as HTMLElement;
   const durationEl = container.querySelector('.pp-duration') as HTMLElement;
   const barWrap = container.querySelector('.pp-bar-wrap') as HTMLElement;
+  // Chapter rows live in the same output block as the player they drive
+  const chapters = Array.from(
+    container.closest('.output-block')?.querySelectorAll<HTMLElement>('.tc-chapter-link[data-seek]') ?? []
+  );
 
   let audio: HTMLAudioElement | null = null;
-  let loaded = false;
 
   function ensureAudio() {
     if (!audio) {
@@ -141,25 +147,58 @@ function initPodcastPlayer(el: Element) {
         progress.style.width = pct + '%';
         knob.style.left = pct + '%';
         currentTime.textContent = formatTime(audio!.currentTime);
+        highlightChapter(audio!.currentTime);
       });
+      // Drive the icon off the audio itself so seeking keeps it in sync
+      audio.addEventListener('play', () => { playBtn.innerHTML = PAUSE_ICON; });
+      audio.addEventListener('pause', () => { playBtn.innerHTML = PLAY_ICON; });
       audio.addEventListener('ended', () => {
-        playBtn.innerHTML = '&#xf040a;';
         progress.style.width = '0%';
         knob.style.left = '0%';
+        highlightChapter(-1);
       });
     }
     return audio;
   }
 
+  function highlightChapter(time: number) {
+    let active = -1;
+    for (let i = 0; i < chapters.length; i++) {
+      if (Number(chapters[i].dataset.seek) <= time) active = i;
+      else break;
+    }
+    chapters.forEach((ch, i) => ch.classList.toggle('is-playing', i === active));
+  }
+
+  function seekTo(seconds: number) {
+    const a = ensureAudio();
+    // currentTime is only settable once the browser knows the duration
+    const applySeek = () => {
+      a.currentTime = seconds;
+      highlightChapter(seconds);
+    };
+    if (a.readyState >= 1) applySeek();
+    else a.addEventListener('loadedmetadata', applySeek, { once: true });
+    // Called synchronously so the click still counts as the user gesture
+    // that autoplay policies require
+    a.play().catch(() => {});
+  }
+
+  for (const ch of chapters) {
+    const seconds = Number(ch.dataset.seek);
+    ch.addEventListener('click', () => seekTo(seconds));
+    ch.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        seekTo(seconds);
+      }
+    });
+  }
+
   playBtn.addEventListener('click', () => {
     const a = ensureAudio();
-    if (a.paused) {
-      a.play();
-      playBtn.innerHTML = '&#xf03e4;';
-    } else {
-      a.pause();
-      playBtn.innerHTML = '&#xf040a;';
-    }
+    if (a.paused) a.play();
+    else a.pause();
   });
 
   muteBtn.addEventListener('click', () => {

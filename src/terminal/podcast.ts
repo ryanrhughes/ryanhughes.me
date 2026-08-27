@@ -24,6 +24,11 @@ export async function fetchPodcast(): Promise<PodcastData | null> {
   }
 }
 
+// "45:24" / "1:02:03" -> seconds, for seeking the player
+function timeToSeconds(time: string): number {
+  return time.split(':').reduce((total, part) => total * 60 + Number(part), 0);
+}
+
 export function buildEpisodeHtml(ep: PodcastEpisode, prev: PodcastEpisode | null, next: PodcastEpisode | null): string {
   const lines: string[] = [];
 
@@ -45,7 +50,8 @@ export function buildEpisodeHtml(ep: PodcastEpisode, prev: PodcastEpisode | null
     lines.push('');
   }
 
-  // Chapters — timestamp column, with wrapped titles hanging under the title
+  // Chapters — timestamp column, with wrapped titles hanging under the title.
+  // Each row carries data-seek so the player above can jump to it.
   if (ep.chapters.length > 0) {
     // Episodes over an hour use h:mm:ss, so size the column to the feed
     const timeWidth = Math.max(...ep.chapters.map(ch => ch.time.length));
@@ -54,8 +60,10 @@ export function buildEpisodeHtml(ep: PodcastEpisode, prev: PodcastEpisode | null
     // Joined with no separator: the output block is white-space:pre-wrap, so a
     // newline between two display:block spans would render as a blank line.
     lines.push(ep.chapters.map(ch =>
-      `<span class="tc-chapter" style="padding-left:${indent}ch;text-indent:-${indent}ch">` +
-      `<span class="tc-cyan">${ch.time.padStart(timeWidth)}</span>  ${escPodcast(ch.title)}</span>`
+      `<span class="tc-chapter tc-chapter-link" data-seek="${timeToSeconds(ch.time)}"` +
+      ` role="button" tabindex="0" aria-label="Play from ${ch.time} — ${escPodcast(ch.title)}"` +
+      ` style="padding-left:${indent}ch;text-indent:-${indent}ch">` +
+      `<span class="pp-chapter-time">${ch.time.padStart(timeWidth)}</span>  ${escPodcast(ch.title)}</span>`
     ).join(''));
     lines.push('');
   }
