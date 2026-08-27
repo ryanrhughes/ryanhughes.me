@@ -99,6 +99,12 @@ html, body {
   text-indent: -9ch;
 }
 
+/* Podcast chapter line — hanging indent so wrapped titles clear the timestamp.
+   The indent width is set inline, since it depends on the feed's time format. */
+.tc-chapter {
+  display: block;
+}
+
 .command-echo {
   color: var(--color-tn-fg);
 }

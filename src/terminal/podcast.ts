@@ -1,143 +1,23 @@
 import { isMobile } from './types';
+import {
+  PODCAST_RSS_URL,
+  parsePodcastFeed,
+  type PodcastChapter,
+  type PodcastData,
+  type PodcastEpisode,
+} from '../lib/podcast-rss';
 
-// Fetch and parse podcast RSS feed at build time
-const RSS_URL = 'https://api.riverside.fm/hosting/okuCkBP9.rss';
+export type { PodcastChapter, PodcastData, PodcastEpisode };
 
 function escPodcast(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-export interface PodcastEpisode {
-  title: string;
-  slug: string;
-  number: number;
-  description: string;
-  summary: string;
-  chapters: { time: string; title: string }[];
-  pubDate: string;
-  duration: string;
-  audioUrl: string;
-  imageUrl: string;
-}
-
-export interface PodcastData {
-  title: string;
-  description: string;
-  author: string;
-  imageUrl: string;
-  episodes: PodcastEpisode[];
-}
-
-function slugify(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/^episode\s*\d+\s*[-–—]\s*/i, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-    .slice(0, 50)
-    .replace(/-$/, '');
-}
-
-function parseChapters(html: string): { time: string; title: string }[] {
-  const chapters: { time: string; title: string }[] = [];
-  // Match patterns like "00:00 Title" or "00:00:00 Title"
-  const regex = /(\d{1,2}:\d{2}(?::\d{2})?)\s+(.+?)(?:<\/|$)/g;
-  let m;
-  while ((m = regex.exec(html)) !== null) {
-    chapters.push({ time: m[1], title: m[2].replace(/<[^>]*>/g, '').trim() });
-  }
-  return chapters;
-}
-
-function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, '').trim();
-}
-
-function extractSummary(desc: string): string {
-  // Look for <b>Summary</b> section
-  const summaryMatch = desc.match(/<b>Summary<\/b><\/p><p>(.*?)<\/p>/s);
-  if (summaryMatch) return stripHtml(summaryMatch[1]);
-
-  // Otherwise grab the first paragraph that isn't a heading
-  const firstP = desc.match(/<p>(?!<b>)(.*?)<\/p>/s);
-  if (firstP) return stripHtml(firstP[1]);
-
-  return stripHtml(desc).slice(0, 300);
-}
-
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr);
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
-}
-
-function formatDuration(dur: string): string {
-  // "00:46:53" -> "46 min"
-  const parts = dur.split(':').map(Number);
-  if (parts.length === 3) {
-    const [h, m] = parts;
-    return h > 0 ? `${h}h ${m}m` : `${m} min`;
-  }
-  return dur;
-}
-
-function xmlText(xml: string, tag: string): string {
-  // Handle CDATA
-  const cdataRe = new RegExp(`<${tag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]></${tag}>`, 'i');
-  const cdataMatch = xml.match(cdataRe);
-  if (cdataMatch) return cdataMatch[1];
-
-  const re = new RegExp(`<${tag}[^>]*>(.*?)</${tag}>`, 'is');
-  const match = xml.match(re);
-  return match ? match[1].trim() : '';
-}
-
-function xmlAttr(xml: string, tag: string, attr: string): string {
-  const re = new RegExp(`<${tag}[^>]*\\s${attr}="([^"]*)"`, 'i');
-  const match = xml.match(re);
-  return match ? match[1] : '';
-}
-
 export async function fetchPodcast(): Promise<PodcastData | null> {
   try {
-    const res = await fetch(RSS_URL);
+    const res = await fetch(PODCAST_RSS_URL);
     if (!res.ok) return null;
-    const xml = await res.text();
-
-    const channelTitle = xmlText(xml, 'title');
-    const channelDesc = xmlText(xml, 'description');
-    const author = xmlText(xml, 'itunes:author');
-    const imageUrl = xmlAttr(xml, 'itunes:image', 'href');
-
-    // Parse episodes
-    const items = xml.split('<item>').slice(1);
-    const episodes: PodcastEpisode[] = items.map(item => {
-      const title = xmlText(item, 'title');
-      const desc = xmlText(item, 'description');
-      const pubDate = xmlText(item, 'pubDate');
-      const duration = xmlText(item, 'itunes:duration');
-      const audioUrl = xmlAttr(item, 'enclosure', 'url');
-      const epImageUrl = xmlAttr(item, 'itunes:image', 'href') || imageUrl;
-      const epNumber = Number(xmlText(item, 'itunes:episode')) || 0;
-
-      return {
-        title,
-        slug: slugify(title),
-        number: epNumber,
-        description: desc,
-        summary: extractSummary(desc),
-        chapters: parseChapters(desc),
-        pubDate: formatDate(pubDate),
-        duration: formatDuration(duration),
-        audioUrl,
-        imageUrl: epImageUrl,
-      };
-    });
-
-    // Sort by episode number ascending
-    episodes.sort((a, b) => a.number - b.number);
-
-    return { title: channelTitle, description: channelDesc, author, imageUrl, episodes };
+    return parsePodcastFeed(await res.text());
   } catch (e) {
     console.error('Failed to fetch podcast RSS:', e);
     return null;
@@ -158,19 +38,25 @@ export function buildEpisodeHtml(ep: PodcastEpisode, prev: PodcastEpisode | null
   lines.push(`<div class="podcast-player" id="${playerId}" data-src="${ep.audioUrl}"><div class="pp-controls"><button class="pp-play nf" aria-label="Play">&#xf040a;</button><div class="pp-time"><span class="pp-current">0:00</span> / <span class="pp-duration">${ep.duration}</span></div><div class="pp-bar-wrap"><div class="pp-bar"><div class="pp-progress"></div><div class="pp-knob"></div></div></div><button class="pp-mute nf" aria-label="Mute">&#xf057e;</button></div></div>`);
   lines.push('');
 
-  // Summary
+  // Summary — paragraphs are separated by blank lines
   if (ep.summary) {
     lines.push(`<span class="tc-label">Summary</span>`);
-    lines.push(ep.summary);
+    lines.push(escPodcast(ep.summary));
     lines.push('');
   }
 
-  // Chapters
+  // Chapters — timestamp column, with wrapped titles hanging under the title
   if (ep.chapters.length > 0) {
+    // Episodes over an hour use h:mm:ss, so size the column to the feed
+    const timeWidth = Math.max(...ep.chapters.map(ch => ch.time.length));
+    const indent = timeWidth + 2;
     lines.push(`<span class="tc-label">Chapters</span>`);
-    for (const ch of ep.chapters) {
-      lines.push(`<span class="tc-muted">${ch.time.padEnd(8)}</span> ${ch.title}`);
-    }
+    // Joined with no separator: the output block is white-space:pre-wrap, so a
+    // newline between two display:block spans would render as a blank line.
+    lines.push(ep.chapters.map(ch =>
+      `<span class="tc-chapter" style="padding-left:${indent}ch;text-indent:-${indent}ch">` +
+      `<span class="tc-cyan">${ch.time.padStart(timeWidth)}</span>  ${escPodcast(ch.title)}</span>`
+    ).join(''));
     lines.push('');
   }
 
