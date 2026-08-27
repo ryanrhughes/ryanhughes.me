@@ -3,6 +3,9 @@
   "name": "personal-website",
   "compatibility_date": "2025-01-06",
   "assets": {
-    "directory": "./dist"
+    "directory": "./dist",
+    // Without this, unmatched routes return a bare 404 with an empty body
+    // instead of dist/404.html
+    "not_found_handling": "404-page"
   }
 }
