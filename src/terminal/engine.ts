@@ -472,8 +472,6 @@ export function executeCommand(raw: string, { interactive = true } = {}) {
       await sleep(800);
       appendOutput(`<span class="tc-red">destroying /home/ryan/projects/oodle...</span>`);
       await sleep(400);
-      appendOutput(`<span class="tc-red">destroying /home/ryan/projects/third-helix...</span>`);
-      await sleep(400);
       appendOutput(`<span class="tc-red">destroying /home/ryan/projects/omarchy...</span>`);
       await sleep(400);
       appendOutput(`<span class="tc-red">destroying /home/ryan/.secrets...</span>`);

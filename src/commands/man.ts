@@ -21,8 +21,7 @@ export function cmdMan(args: string, ctx: CommandContext): { output: string; err
 
 <span class="tc-yellow">DESCRIPTION</span>
   Partner & CIO at ${click('Oodle', 'cat projects/oodle', 'tc-link-inline')}.
-  Co-founder of ${click('Third Helix', 'cat projects/third-helix', 'tc-link-inline')}.
-  Core contributor to ${click('Omarchy', 'cat projects/omarchy', 'tc-link-inline')}.
+  Core team on ${click('Omarchy', 'cat projects/omarchy', 'tc-link-inline')}.
   Runs ${click('luxury vacation rentals', 'cat projects/sunset-villas', 'tc-link-inline')}
   near Disney & Universal. Lives in
   Fort Lauderdale with his wife and
@@ -62,10 +61,9 @@ export function cmdMan(args: string, ctx: CommandContext): { output: string; err
        <span class="tc-white">ryan</span> [--build] [--break] [--fix] [--repeat]
 
 <span class="tc-yellow">DESCRIPTION</span>
-       Partner & CIO at ${click('Oodle', 'cat projects/oodle', 'tc-link-inline')}. Co-founder of ${click('Third Helix', 'cat projects/third-helix', 'tc-link-inline')}.
-       Core contributor to ${click('Omarchy', 'cat projects/omarchy', 'tc-link-inline')}. Runs ${click('luxury vacation rentals', 'cat projects/sunset-villas', 'tc-link-inline')} near
-       Disney & Universal. Lives in Fort Lauderdale with his wife
-       and two dogs.
+       Partner & CIO at ${click('Oodle', 'cat projects/oodle', 'tc-link-inline')}. Core team on ${click('Omarchy', 'cat projects/omarchy', 'tc-link-inline')}.
+       Runs ${click('luxury vacation rentals', 'cat projects/sunset-villas', 'tc-link-inline')} near Disney & Universal. Lives in
+       Fort Lauderdale with his wife and two dogs.
 
 <span class="tc-yellow">OPTIONS</span>
        <span class="tc-white">--coffee</span>     Required.
