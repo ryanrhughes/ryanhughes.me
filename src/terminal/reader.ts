@@ -3,7 +3,7 @@
  * Opens over the terminal, captures keyboard input, closes with `q` or `Escape`.
  */
 
-import { initPodcastPlayer } from './output';
+import { initPodcastPlayer, collapseBlockRowGaps } from './output';
 
 let overlay: HTMLElement | null = null;
 let contentEl: HTMLElement | null = null;
@@ -43,6 +43,7 @@ export function openReader(title: string, content: string, filePath: string) {
   contentEl.className = 'reader-content';
   contentEl.innerHTML = `<div class="reader-content-inner">${content}</div>`;
   contentEl.tabIndex = 0;
+  collapseBlockRowGaps(contentEl);
   // Podcast episodes opened here carry a player and chapter list of their own
   contentEl.querySelectorAll('.podcast-player').forEach(initPodcastPlayer);
 

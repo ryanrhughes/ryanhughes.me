@@ -70,10 +70,37 @@ export function fileClick(name: string, path: string, icon?: string): string {
   return `<span class="tc-icon tc-file-icon">${i}</span> ` + click(name, `cat ${path}`, 'tc-file');
 }
 
+// `.tc-indent`, `.tc-kv` and `.tc-chapter` render as blocks. The output
+// container is white-space: pre-wrap, so a newline sitting next to one of them
+// in the source becomes a rendered blank line — which double-spaces every
+// indented list. Drop one newline from the whitespace between them, leaving
+// adjacent rows flush and a deliberate blank line still worth one line.
+const BLOCK_ROW_SELECTOR = '.tc-indent, .tc-kv, .tc-chapter, .tc-latest';
+
+function collapseBlockRowGaps(root: HTMLElement) {
+  // A gap between two block rows is both the first one's nextSibling and the
+  // second one's previousSibling; trimming it twice would eat a deliberate
+  // blank line, so each text node is only touched once.
+  const seen = new Set<Node>();
+  root.querySelectorAll(BLOCK_ROW_SELECTOR).forEach(el => {
+    for (const node of [el.previousSibling, el.nextSibling]) {
+      if (!node || node.nodeType !== Node.TEXT_NODE || seen.has(node)) continue;
+      const text = node.textContent ?? '';
+      if (/^[^\S\n]*\n[\s]*$/.test(text)) {
+        seen.add(node);
+        node.textContent = text.replace('\n', '');
+      }
+    }
+  });
+}
+
+export { collapseBlockRowGaps };
+
 export function appendOutput(html: string) {
   const div = document.createElement('div');
   div.className = 'output-block';
   div.innerHTML = html;
+  collapseBlockRowGaps(div);
   outputEl.appendChild(div);
   // Click/keyboard handling is delegated on #terminal-output (see initOutput)
   // Scroll after images load (bio headshot, icons, etc.)

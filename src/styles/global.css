@@ -105,6 +105,22 @@ html.doc-scroll, body.doc-scroll {
   text-indent: -9ch;
 }
 
+/* "Latest episode/post" rows — label column with the title hanging under
+   itself. The indent is dropped on narrow screens, where 16ch would eat half
+   the available width. */
+.tc-latest {
+  display: block;
+  padding-left: 16ch;
+  text-indent: -16ch;
+}
+
+@media (max-width: 640px) {
+  .tc-latest {
+    padding-left: 0;
+    text-indent: 0;
+  }
+}
+
 /* Podcast chapter line — hanging indent so wrapped titles clear the timestamp.
    The indent width is set inline, since it depends on the feed's time format. */
 .tc-chapter {
