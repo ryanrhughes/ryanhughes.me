@@ -17,7 +17,7 @@ export function whoamiOutput(ctx: CommandContext): string {
   return `<span class="tc-accent tc-bold" style="font-size:1.1em">Ryan Hughes</span>
 <span class="tc-muted">husband · builder · founder · open-source contributor · Fort Lauderdale, FL</span>
 
-I'm Chief Innovation Officer at ${oodle}, which mostly means I build the things we'd otherwise have to buy — like ${herald}. When I'm not there I'm on the ${omarchy} core team. I also co-own ${villas} and co-host the ${pod} with my business partner.
+I'm Partner and Chief Innovation Officer at ${oodle}, where I lead technology strategy and applied AI for our clients, and build products like ${herald}. When I'm not there I'm on the ${omarchy} core team. I also co-own ${villas} and co-host the ${pod} with my business partner.
 
 <span class="tc-muted">I write on the ${click('blog', 'blog', 'tc-link-inline')}. Find me on <a href="https://github.com/ryanrhughes" target="_blank" rel="noopener noreferrer" class="tc-link">GitHub</a>, <a href="https://x.com/ryanrhughes" target="_blank" rel="noopener noreferrer" class="tc-link">X</a>, and <a href="https://linkedin.com/in/ryanrhughes" target="_blank" rel="noopener noreferrer" class="tc-link">LinkedIn</a>, or just email me at <a href="mailto:ryan@heyoodle.com" class="tc-link">ryan@heyoodle.com</a>.</span>`;
 }
