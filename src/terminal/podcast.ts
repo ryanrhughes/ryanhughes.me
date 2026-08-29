@@ -1,4 +1,5 @@
 import { isMobile } from './types';
+import { PODCAST_LINKS } from '../lib/site';
 import {
   PODCAST_RSS_URL,
   parsePodcastFeed,
@@ -27,6 +28,13 @@ export async function fetchPodcast(): Promise<PodcastData | null> {
 // "45:24" / "1:02:03" -> seconds, for seeking the player
 function timeToSeconds(time: string): number {
   return time.split(':').reduce((total, part) => total * 60 + Number(part), 0);
+}
+
+function subscribeLine(): string {
+  const links = PODCAST_LINKS.map(
+    l => `<a href="${l.url}" target="_blank" rel="noopener noreferrer" class="tc-link">${escPodcast(l.label)}</a>`
+  ).join('  <span class="tc-muted">·</span>  ');
+  return `<span class="tc-label">Subscribe:</span> ${links}`;
 }
 
 export function buildEpisodeHtml(ep: PodcastEpisode, prev: PodcastEpisode | null, next: PodcastEpisode | null): string {
@@ -69,6 +77,8 @@ export function buildEpisodeHtml(ep: PodcastEpisode, prev: PodcastEpisode | null
   }
 
   // Navigation
+  lines.push(subscribeLine());
+  lines.push('');
   lines.push('<span class="tc-muted">─────────────────────────────────</span>');
   if (prev) {
     lines.push(`<span class="tc-click tc-link-inline" data-cmd="cat ~/podcast/${prev.slug}">Previous: ${escPodcast(prev.title)}</span>`);
@@ -98,6 +108,10 @@ export function buildPodcastReadme(data: PodcastData): string {
   lines.push(`  <span class="tc-cyan">•</span> Real-time, zero-filter debates, because when you've argued over cap tables with your actual family, you stop pretending to agree`);
   lines.push('');
   lines.push(`<span class="tc-muted">Not Brothers. Just two co-founders who've been mistaken for siblings so often they made it the title.</span>`);
+  lines.push('');
+  lines.push('<span class="tc-muted">─────────────────────────────────</span>');
+  lines.push('');
+  lines.push(subscribeLine());
   lines.push('');
   lines.push('<span class="tc-muted">─────────────────────────────────</span>');
   lines.push('');

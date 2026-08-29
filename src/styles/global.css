@@ -889,6 +889,41 @@ html.doc-scroll, body.doc-scroll {
   text-decoration: underline;
 }
 
+/* Related posts at the end of a reader article */
+.reader-related {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-tn-selection);
+}
+
+.reader-related h2 {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-tn-comment);
+  margin-bottom: 0.75rem;
+}
+
+.reader-related ul {
+  list-style: none;
+  padding: 0;
+}
+
+.reader-related li {
+  margin-bottom: 0.5rem;
+}
+
+.reader-related .reader-post-date {
+  color: var(--color-tn-comment);
+  font-size: 0.85em;
+}
+
+.reader-post-footer {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
 /* Reader file content (non-blog files displayed in reader) */
 .reader-file-content {
   white-space: pre-wrap;

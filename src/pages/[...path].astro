@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Terminal from '../components/Terminal.astro';
 import '../styles/global.css';
 import { PODCAST_RSS_URL, parsePodcastFeed } from '../lib/podcast-rss';
 import { getPageMeta } from '../lib/page-meta';
@@ -45,42 +46,12 @@ export async function getStaticPaths() {
   return paths.map(p => ({ params: { path: p } }));
 }
 ---
-<Layout title={meta.title} description={meta.description} canonical={meta.canonical} ogType={meta.ogType}>
+<Layout title={meta.title} description={meta.description} canonical={meta.canonical} ogType={meta.ogType} image={meta.image}>
   <noscript>
     <div class="noscript-content" set:html={meta.noscript}></div>
   </noscript>
 
-  <div id="crt-overlay"></div>
-  <div id="terminal" class="terminal-fullscreen">
-    <div id="terminal-output" class="terminal-output" role="log" aria-live="polite"></div>
-    <div id="bottom-bar" class="bottom-bar">
-    <div id="input-area" class="terminal-input-area" style="display:none;">
-      <span id="prompt" class="prompt"></span>
-      <div class="input-wrapper">
-        <input
-          id="terminal-input"
-          type="text"
-          class="terminal-input"
-          aria-label="Terminal command input"
-          autocomplete="off"
-          autocorrect="off"
-          autocapitalize="off"
-          spellcheck="false"
-        />
-        <span id="cursor" class="cursor-blink">█</span>
-      </div>
-    </div>
-    <div id="mobile-bar" class="mobile-command-bar">
-      <button class="mobile-cmd" data-cmd="help">help</button>
-      <button class="mobile-cmd" data-cmd="ls">ls</button>
-      <button class="mobile-cmd" data-cmd="lt">tree</button>
-      <button class="mobile-cmd" data-cmd="ls projects/">projects</button>
-      <button class="mobile-cmd" data-cmd="man ryan">man ryan</button>
-      <button class="mobile-cmd" data-cmd="neofetch">neofetch</button>
-      <button class="mobile-cmd" data-cmd="cat connect/*">connect</button>
-    </div>
-    </div>
-  </div>
+  <Terminal />
 
   <script id="podcast-data" type="application/json" set:html={podcastJson.replace(/<\/script/gi, '<\\/script')}></script>
   <script id="blog-data" type="application/json" set:html={blogJson.replace(/<\/script/gi, '<\\/script')}></script>

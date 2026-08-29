@@ -41,6 +41,15 @@ function parseMetadata(raw: string): FileMetadata {
   return meta;
 }
 
+// Cached so the MOTD and `latest` can report what's new without re-parsing
+let cachedPodcast: PodcastData | null = null;
+
+/** The most recent episode, or null when the feed wasn't inlined. */
+export function getLatestEpisode() {
+  const episodes = cachedPodcast?.episodes;
+  return episodes && episodes.length ? episodes[episodes.length - 1] : null;
+}
+
 export function buildFilesystem(): FilesystemData {
   const fs: FSTree = {
     '~': { _type: 'dir' } as any,
@@ -52,6 +61,7 @@ export function buildFilesystem(): FilesystemData {
   if (podcastEl) {
     try {
       const podcastData: PodcastData = JSON.parse(podcastEl.textContent || '');
+      cachedPodcast = podcastData;
       if (podcastData && podcastData.episodes.length > 0) {
         // Create ~/podcast/ directory
         fs['~']['podcast'] = { _type: 'dir' } as any;
@@ -89,7 +99,7 @@ export function buildFilesystem(): FilesystemData {
 
         for (const post of blogPosts) {
           fs['~/blog'][post.slug] = { _type: 'file', icon: '\ue609', date: post.date } as any;
-          fileContents[`~/blog/${post.slug}`] = buildBlogTerminalContent(post);
+          fileContents[`~/blog/${post.slug}`] = buildBlogTerminalContent(post, blogPosts);
         }
       }
     } catch (e) {

@@ -16,6 +16,7 @@ import { cmdUptime } from '../commands/uptime';
 import { cmdBuiltin } from '../commands/builtins';
 import { cmdOpencode } from '../commands/opencode';
 import { cmdRead } from '../commands/read';
+import { cmdLatest } from '../commands/latest';
 import { isReaderOpen } from './reader';
 
 // ── State ──
@@ -375,6 +376,7 @@ function executeSingle(command: string, args: string, ctx: CommandContext): stri
     case 'uptime': return cmdUptime(args, ctx);
     case 'cowsay': return cmdCowsay(args, ctx);
     case 'omarchy': return cmdCat('~/projects/omarchy');
+    case 'latest': case 'new': return cmdLatest(ctx);
     case 'clear': clearOutput(); return '';
     case 'home': {
       clearOutput();
@@ -408,10 +410,23 @@ function executeSingle(command: string, args: string, ctx: CommandContext): stri
   }
 }
 
+// Shortcuts for the content people actually come for. `omarchy` already set
+// the precedent; without these the blog and podcast are only reachable by
+// noticing two directories in `ls`.
+const ALIASES: Record<string, string> = {
+  blog: 'cd ~/blog && ls -l',
+  posts: 'cd ~/blog && ls -l',
+  podcast: 'cd ~/podcast && ls -l',
+  episodes: 'cd ~/podcast && ls -l',
+};
+
 // ── Execute command ──
 export function executeCommand(raw: string, { interactive = true } = {}) {
-  const cmd = raw.trim();
+  let cmd = raw.trim();
   if (!cmd) return;
+
+  const alias = ALIASES[cmd.toLowerCase()];
+  if (alias) cmd = alias;
 
   // Support && chaining
   if (cmd.includes('&&')) {

@@ -8,6 +8,9 @@ export function cmdHelp(args: string, ctx: CommandContext): string {
     return `<span class="tc-purple">Available Commands</span>
 
  ${click('help', 'help', 'tc-cmd')}        show this help
+ ${click('latest', 'latest', 'tc-cmd')}      what's new
+ ${click('podcast', 'podcast', 'tc-cmd')}     all episodes
+ ${click('blog', 'blog', 'tc-cmd')}        all posts
  ${click('home', 'home', 'tc-cmd')}        back to start
  ${click('ls', 'ls', 'tc-cmd')} <span class="tc-muted">[path]</span>  list directory
  ${click('lt', 'lt', 'tc-cmd')} <span class="tc-muted">[path]</span>  file tree
@@ -32,6 +35,9 @@ export function cmdHelp(args: string, ctx: CommandContext): string {
   return `<span class="tc-purple">Available Commands</span>
 
   ${click('help', 'help', 'tc-cmd')}             show this help message
+  ${click('latest', 'latest', 'tc-cmd')}           newest episode and post
+  ${click('podcast', 'podcast', 'tc-cmd')}          the Not Brothers Podcast — all episodes
+  ${click('blog', 'blog', 'tc-cmd')}             all blog posts
   ${click('home', 'home', 'tc-cmd')}             back to the start screen
   ${click('ls', 'ls', 'tc-cmd')} <span class="tc-muted">[path]</span>         list directory contents
   ${click('lt', 'lt', 'tc-cmd')} <span class="tc-muted">[path]</span>         file tree

@@ -14,10 +14,13 @@ export interface BlogPostJson {
   body: string;
 }
 
-const DATE_FORMAT: Intl.DateTimeFormatOptions = {
+// Frontmatter dates parse as UTC midnight, so format in UTC too — otherwise
+// every date renders a day early for anyone west of Greenwich.
+export const POST_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
+  timeZone: 'UTC',
 };
 
 /** Published posts, newest first. */
@@ -32,8 +35,8 @@ export function toBlogJson(posts: Awaited<ReturnType<typeof getPublishedPosts>>)
     posts.map(post => ({
       slug: post.id.replace(/\.md$/, ''),
       title: post.data.title,
-      date: post.data.date.toLocaleDateString('en-US', DATE_FORMAT),
-      updated: post.data.updated?.toLocaleDateString('en-US', DATE_FORMAT),
+      date: post.data.date.toLocaleDateString('en-US', POST_DATE_FORMAT),
+      updated: post.data.updated?.toLocaleDateString('en-US', POST_DATE_FORMAT),
       description: post.data.description,
       tags: post.data.tags,
       body: post.body,
@@ -46,7 +49,7 @@ export function toBlogList(posts: Awaited<ReturnType<typeof getPublishedPosts>>)
   return posts.map(post => ({
     slug: post.id.replace(/\.md$/, ''),
     title: post.data.title,
-    date: post.data.date.toLocaleDateString('en-US', DATE_FORMAT),
+    date: post.data.date.toLocaleDateString('en-US', POST_DATE_FORMAT),
     description: post.data.description,
   }));
 }

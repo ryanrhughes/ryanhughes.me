@@ -5,16 +5,8 @@
 
 import type { CommandContext } from '../terminal/types';
 import { openReader } from '../terminal/reader';
+import { relatedPosts, type BlogPostData } from '../terminal/blog';
 
-interface BlogPostData {
-  slug: string;
-  title: string;
-  date: string;
-  updated?: string;
-  description: string;
-  tags: string[];
-  body: string;
-}
 
 function escHtml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -167,6 +159,19 @@ export function getBlogPosts(): BlogPostData[] {
   }
 }
 
+/** Related-post block for the reader overlay */
+function relatedHtml(post: BlogPostData): string {
+  const related = relatedPosts(post, getBlogPosts());
+  if (!related.length) return '';
+  const items = related
+    .map(
+      r =>
+        `<li><a href="#" class="reader-back-link" data-reader-cmd="read ~/blog/${r.slug}">${escHtml(r.title)}</a> <span class="reader-post-date">${escHtml(r.date)}</span></li>`
+    )
+    .join('');
+  return `<div class="reader-related"><h2>Related</h2><ul>${items}</ul></div>`;
+}
+
 /** Build reader HTML for a blog post */
 export function buildBlogReaderHtml(post: BlogPostData): string {
   return `<div class="reader-blog-post">
@@ -179,8 +184,10 @@ export function buildBlogReaderHtml(post: BlogPostData): string {
   <div class="reader-post-body">
     ${markdownToReaderHtml(post.body)}
   </div>
+  ${relatedHtml(post)}
   <div class="reader-post-footer">
     <a href="#" class="reader-back-link" data-reader-cmd="cd ~/blog && ls">← back to blog</a>
+    <a href="/rss.xml" class="reader-back-link">subscribe via RSS</a>
   </div>
 </div>`;
 }

@@ -131,7 +131,24 @@ function formatInline(text: string): string {
   return out;
 }
 
-export function buildBlogTerminalContent(post: BlogPostData): string {
+/**
+ * Posts to read next: those sharing the most tags, then the most recent.
+ * The fallback matters — right now no two posts share a tag, and a post that
+ * dead-ends at "back to posts" is the end of the visit.
+ */
+export function relatedPosts(post: BlogPostData, all: BlogPostData[], limit = 3): BlogPostData[] {
+  const tags = new Set(post.tags);
+  const others = all.filter(p => p.slug !== post.slug);
+
+  const scored = others
+    .map((p, index) => ({ post: p, shared: p.tags.filter(t => tags.has(t)).length, index }))
+    // `all` arrives newest-first, so index doubles as a recency rank
+    .sort((a, b) => b.shared - a.shared || a.index - b.index);
+
+  return scored.slice(0, limit).map(p => p.post);
+}
+
+export function buildBlogTerminalContent(post: BlogPostData, all: BlogPostData[] = []): string {
   const lines: string[] = [];
 
   // Header banner
@@ -152,8 +169,20 @@ export function buildBlogTerminalContent(post: BlogPostData): string {
   // Footer
   lines.push('');
   lines.push('<span class="tc-muted">─────────────────────────────────</span>');
+
+  const related = relatedPosts(post, all);
+  if (related.length) {
+    lines.push('');
+    lines.push('<span class="tc-label">Related</span>');
+    for (const r of related) {
+      lines.push(`<span class="tc-click tc-link-inline" data-cmd="cat ~/blog/${r.slug}">${escHtml(r.title)}</span> <span class="tc-muted">· ${escHtml(r.date)}</span>`);
+    }
+    lines.push('');
+  }
+
   lines.push(`<span class="tc-click tc-link-inline" data-cmd="read ~/blog/${post.slug}">📖 open reader experience</span>`);
   lines.push(`<span class="tc-click tc-link-inline" data-cmd="cd ~/blog && ls">Back to posts</span>`);
+  lines.push(`<a href="/rss.xml" class="tc-link">Subscribe via RSS</a>`);
 
   return lines.join('\n');
 }

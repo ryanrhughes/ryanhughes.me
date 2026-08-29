@@ -1,0 +1,37 @@
+---
+// The terminal shell itself. Identical on every page that boots the terminal,
+// so it lives here rather than being copy-pasted into each entrypoint.
+---
+<div id="crt-overlay"></div>
+<div id="terminal" class="terminal-fullscreen">
+  <div id="terminal-output" class="terminal-output" role="log" aria-live="polite"></div>
+  <!-- Bottom bar: input + mobile commands -->
+  <div id="bottom-bar" class="bottom-bar">
+    <div id="input-area" class="terminal-input-area" style="display:none;">
+      <span id="prompt" class="prompt"></span>
+      <div class="input-wrapper">
+        <input
+          id="terminal-input"
+          type="text"
+          class="terminal-input"
+          aria-label="Terminal command input"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+        />
+        <span id="cursor" class="cursor-blink">█</span>
+      </div>
+    </div>
+    <div id="mobile-bar" class="mobile-command-bar">
+      <button class="mobile-cmd" data-cmd="help">help</button>
+      <button class="mobile-cmd" data-cmd="podcast">podcast</button>
+      <button class="mobile-cmd" data-cmd="blog">blog</button>
+      <button class="mobile-cmd" data-cmd="ls projects/">projects</button>
+      <button class="mobile-cmd" data-cmd="man ryan">man ryan</button>
+      <button class="mobile-cmd" data-cmd="ls">ls</button>
+      <button class="mobile-cmd" data-cmd="neofetch">neofetch</button>
+      <button class="mobile-cmd" data-cmd="cat connect/*">connect</button>
+    </div>
+  </div>
+</div>

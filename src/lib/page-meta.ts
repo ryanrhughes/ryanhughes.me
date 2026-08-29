@@ -5,7 +5,7 @@
 // into a real title, description, and <noscript> body at build time.
 
 import type { PodcastData, PodcastEpisode } from './podcast-rss';
-import { absoluteUrl, DEFAULT_DESCRIPTION, SITE_TITLE, truncate } from './site';
+import { absoluteUrl, DEFAULT_DESCRIPTION, SITE_TITLE, SITE_URL, truncate } from './site';
 
 const htmlModules = import.meta.glob('/src/filesystem/**/*.html', {
   query: '?raw',
@@ -19,6 +19,8 @@ export interface PageMeta {
   description: string;
   canonical: string;
   ogType: 'website' | 'article';
+  /** Absolute URL of the social card; undefined falls back to the site default */
+  image?: string;
   /** Heading rendered above the no-JS body */
   heading: string;
   /** HTML for the <noscript> mirror; empty when there's nothing to mirror */
@@ -174,6 +176,7 @@ export function getPodcastEpisodeMeta(ep: PodcastEpisode): PageMeta {
     description: truncate(ep.summary || `${ep.title} — the Not Brothers Podcast.`),
     canonical: absoluteUrl(path),
     ogType: 'article',
+    image: `${SITE_URL}/og/podcast/${ep.slug}.png`,
     heading: ep.title,
     noscript: episodeNoscript(ep),
   };

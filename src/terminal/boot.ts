@@ -2,6 +2,7 @@ import { appendOutput, scrollToBottom, click, initOutput, escapeHtml, dirClick, 
 import { getPromptHTML, executeCommand, initEngine, commandHistory, setHistoryIndex, updatePrompt, updateMobileBar, fs, fileContents, getCwd, setUrlStateCallback } from './engine';
 import { cmdNeofetch } from '../commands/neofetch';
 import { getBlogPosts, buildBlogReaderHtml } from '../commands/read';
+import { getLatestEpisode } from './filesystem';
 import { openReader, setReaderExecuteCommand } from './reader';
 import type { CommandContext } from './types';
 
@@ -251,10 +252,26 @@ export async function boot() {
   await sleep(400);
 
   // MOTD
+  // Lead with the newest thing — the podcast is weekly, but nothing here said so
+  const latestEp = getLatestEpisode();
+  const latestPost = getBlogPosts()[0];
+  const whatsNew: string[] = [];
+  if (latestEp) {
+    whatsNew.push(
+      `<span class="tc-muted">Latest episode:</span> ${click(latestEp.title.replace(/^Episode\s*\d+\s*[-–—]\s*/i, ''), `cat ~/podcast/${latestEp.slug}`, 'tc-link-inline')} <span class="tc-muted">· ${latestEp.pubDate}</span>`
+    );
+  }
+  if (latestPost) {
+    whatsNew.push(
+      `<span class="tc-muted">Latest post:</span>    ${click(latestPost.title, `read ~/blog/${latestPost.slug}`, 'tc-link-inline')} <span class="tc-muted">· ${latestPost.date}</span>`
+    );
+  }
+
   appendOutput(`<span class="tc-muted">Last login: ${dateStr} from ${vibe}</span>
 
 <span class="tc-white">Welcome.</span> <span class="tc-muted">Type ${click('help', 'help', 'tc-link-inline')} for commands, or just click anything highlighted.</span>
-<span class="tc-muted">Try: ${click('ls', 'ls', 'tc-link-inline')}  ${click('lt', 'lt', 'tc-link-inline')}  ${click('man ryan', 'man ryan', 'tc-link-inline')}  ${click('cat resume.txt', 'cat resume.txt', 'tc-link-inline')}  ${click('cat connect/*', 'cat connect/*', 'tc-link-inline')}</span>
+${whatsNew.length ? whatsNew.join('\n') + '\n' : ''}
+<span class="tc-muted">Try: ${click('podcast', 'podcast', 'tc-link-inline')}  ${click('blog', 'blog', 'tc-link-inline')}  ${click('man ryan', 'man ryan', 'tc-link-inline')}  ${click('cat resume.txt', 'cat resume.txt', 'tc-link-inline')}  ${click('cat connect/*', 'cat connect/*', 'tc-link-inline')}</span>
 `);
 
   // Show input
