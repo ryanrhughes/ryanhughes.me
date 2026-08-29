@@ -7,7 +7,7 @@ export const SITE_AUTHOR = 'Ryan Hughes';
 export const TWITTER_HANDLE = '@ryanrhughes';
 
 export const DEFAULT_DESCRIPTION =
-  'Ryan Hughes — Builder, founder, open-source contributor. Partner & CIO at Oodle, Omarchy core team member.';
+  'Ryan Hughes — Chief Innovation Officer at Oodle, creator of Herald, and Omarchy core team.';
 
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/images/og-image.png`;
 

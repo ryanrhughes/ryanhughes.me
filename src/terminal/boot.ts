@@ -3,6 +3,7 @@ import { getPromptHTML, executeCommand, initEngine, commandHistory, setHistoryIn
 import { cmdNeofetch } from '../commands/neofetch';
 import { getBlogPosts, buildBlogReaderHtml } from '../commands/read';
 import { getLatestEpisode } from './filesystem';
+import { whoamiOutput } from '../commands/whoami';
 import { openReader, setReaderExecuteCommand } from './reader';
 import type { CommandContext } from './types';
 
@@ -233,20 +234,18 @@ export async function boot() {
   // Type and run: whoami
   await typeLine('whoami', outputEl);
   commandHistory.push('whoami');
-  appendOutput(`<span class="tc-accent tc-bold" style="font-size:1.1em">Ryan Hughes</span>
-<span class="tc-muted">husband · builder · founder · open-source contributor · Fort Lauderdale, FL</span>`);
+  const ctx: CommandContext = {
+    cwd: '~', commandHistory, startTime: Date.now(), fs, fileContents,
+    click, dirClick, fileClick, escapeHtml,
+    resolvePath: (s: string) => s
+  };
+  appendOutput(whoamiOutput(ctx));
 
   await sleep(300);
 
   // Type and run: neofetch
   await typeLine('neofetch', outputEl);
   commandHistory.push('neofetch');
-
-  const ctx: CommandContext = {
-    cwd: '~', commandHistory, startTime: Date.now(), fs, fileContents,
-    click, dirClick, fileClick, escapeHtml,
-    resolvePath: (s: string) => s
-  };
   appendOutput(cmdNeofetch('', ctx));
 
   await sleep(400);

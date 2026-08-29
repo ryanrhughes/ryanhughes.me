@@ -40,7 +40,7 @@ const STATIC_PAGES: Record<string, { title: string; description: string }> = {
   'about/bio': {
     title: 'Bio',
     description:
-      'Partner & CIO at Oodle, Omarchy core team member, and a reformed Apple fanboy in Fort Lauderdale.',
+      'Chief Innovation Officer at Oodle, creator of Herald, Omarchy core team, and a reformed Apple fanboy in Fort Lauderdale.',
   },
   'about/dogs': {
     title: 'Dogs',
@@ -56,12 +56,17 @@ const STATIC_PAGES: Record<string, { title: string; description: string }> = {
   },
   projects: {
     title: 'Projects',
-    description: 'Oodle, Omarchy, and Sunset Villas — the things Ryan Hughes builds and runs.',
+    description: 'Oodle, Herald, Omarchy, and Sunset Villas — the things Ryan Hughes builds and runs.',
   },
   'projects/oodle': {
     title: 'Oodle',
     description:
       'Full-service digital marketing agency founded in 2009. Six-time INC 5000 honoree and Google Premier Partner.',
+  },
+  'projects/herald': {
+    title: 'Herald',
+    description:
+      'Herald drafts changelogs with AI from your merged GitHub PRs and delivers them to the users who care. Built by Ryan Hughes.',
   },
   'projects/omarchy': {
     title: 'Omarchy',
@@ -106,7 +111,7 @@ const STATIC_PAGES: Record<string, { title: string; description: string }> = {
 const DIRECTORY_BODIES: Record<string, string> = {
   about: 'bio.txt\ndogs/',
   'about/dogs': 'remus\narthas',
-  projects: 'oodle\nomarchy\nsunset-villas',
+  projects: 'oodle\nherald\nomarchy\nsunset-villas',
   connect: 'email\nlinkedin\ngithub\nx',
 };
 

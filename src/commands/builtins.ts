@@ -1,4 +1,5 @@
 import type { CommandContext } from '../terminal/types';
+import { whoamiOutput } from './whoami';
 
 export function cmdBuiltin(command: string, args: string, ctx: CommandContext): { output: string; error?: boolean } | null {
   const { click, escapeHtml, cwd } = ctx;
@@ -8,7 +9,7 @@ export function cmdBuiltin(command: string, args: string, ctx: CommandContext): 
       return { output: `<span class="tc-muted">/home/ryan${cwd === '~' ? '' : cwd.replace('~', '')}</span>` };
 
     case 'whoami':
-      return { output: `<span class="tc-accent tc-bold" style="font-size:1.1em">Ryan Hughes</span>\n<span class="tc-muted">husband · builder · founder · open-source contributor · Fort Lauderdale, FL</span>` };
+      return { output: whoamiOutput(ctx) };
 
     case 'exit':
       return { output: `<span class="tc-purple">There is no escape.</span>\n<span class="tc-muted">You live here now. Try ${click('help', 'help', 'tc-link-inline')} instead.</span>` };

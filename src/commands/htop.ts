@@ -7,6 +7,7 @@ export function cmdHtop(args: string, ctx: CommandContext): string {
   if (isMobile()) {
     return `<span class="tc-white tc-bold"> %CPU  COMMAND</span>
 <span class="tc-green"> 85.2  ${click('oodle', 'cat projects/oodle', 'tc-link-inline')}</span>
+<span class="tc-green"> 68.4  ${click('herald', 'cat projects/herald', 'tc-link-inline')}</span>
 <span class="tc-green"> 65.8  ${click('omarchy', 'cat projects/omarchy', 'tc-link-inline')}</span>
 <span class="tc-yellow"> 45.3  ${click('sunset-villas', 'cat projects/sunset-villas', 'tc-link-inline')}</span>
 <span class="tc-yellow"> 99.9  coffee-daemon</span>
@@ -14,12 +15,13 @@ export function cmdHtop(args: string, ctx: CommandContext): string {
 <span class="tc-muted"> 15.0  3d-print-slicer</span>
 <span class="tc-red">  0.0  sleeping [SUSPENDED]</span>
 
-<span class="tc-muted">Tasks: 7 total, 4 running, 2 sleeping, 1 suspended
+<span class="tc-muted">Tasks: 8 total, 5 running, 2 sleeping, 1 suspended
 Load average: just right</span>`;
   }
 
   return `<span class="tc-white tc-bold">  PID USER      PR  NI    VIRT    RES  %CPU %MEM  TIME+ COMMAND</span>
 <span class="tc-green"> 1337 ryan      20   0  420.0m  69.0m  85.2  4.2  9999+ ${click('oodle', 'cat projects/oodle', 'tc-link-inline')}</span>
+<span class="tc-green">  200 ryan      20   0  384.0m  56.0m  68.4  3.8  8080+ ${click('herald', 'cat projects/herald', 'tc-link-inline')}</span>
 <span class="tc-green">  100 ryan      20   0  512.0m  88.0m  65.8  5.5  7777+ ${click('omarchy', 'cat projects/omarchy', 'tc-link-inline')}</span>
 <span class="tc-yellow">  777 ryan      20   0  128.0m  32.0m  45.3  2.0  6666+ ${click('sunset-villas', 'cat projects/sunset-villas', 'tc-link-inline')}</span>
 <span class="tc-yellow">    2 ryan      20   0   64.0m  16.0m  99.9  1.0  ∞     coffee-daemon</span>
@@ -27,6 +29,6 @@ Load average: just right</span>`;
 <span class="tc-muted">    4 ryan      20   0   16.0m   4.0m  15.0  0.2  3333+ 3d-print-slicer</span>
 <span class="tc-red">    5 ryan      20   0    8.0m   2.0m   0.0  0.1     0  sleeping [SUSPENDED]</span>
 
-<span class="tc-muted">Tasks: 7 total, 4 running, 2 sleeping, 1 permanently suspended
+<span class="tc-muted">Tasks: 8 total, 5 running, 2 sleeping, 1 permanently suspended
 Load average: just right</span>`;
 }

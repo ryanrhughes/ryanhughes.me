@@ -7,7 +7,7 @@ import { absoluteUrl } from '../lib/site';
 const STATIC_PATHS = [
   '',
   'about', 'about/bio', 'about/dogs', 'about/dogs/remus', 'about/dogs/arthas',
-  'projects', 'projects/oodle', 'projects/sunset-villas', 'projects/omarchy',
+  'projects', 'projects/oodle', 'projects/herald', 'projects/sunset-villas', 'projects/omarchy',
   'connect', 'connect/email', 'connect/linkedin', 'connect/github', 'connect/x',
   'resume',
   'podcast', 'podcast/readme',

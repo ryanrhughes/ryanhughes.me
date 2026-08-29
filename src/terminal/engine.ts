@@ -17,6 +17,7 @@ import { cmdBuiltin } from '../commands/builtins';
 import { cmdOpencode } from '../commands/opencode';
 import { cmdRead } from '../commands/read';
 import { cmdLatest } from '../commands/latest';
+import { whoamiOutput } from '../commands/whoami';
 import { isReaderOpen } from './reader';
 
 // ── State ──
@@ -388,9 +389,9 @@ function executeSingle(command: string, args: string, ctx: CommandContext): stri
 |  _ <| |_| | (_| | | | |  _  | |_| | (_| | | | |  __/\\__ \\
 |_| \\_\\\\__, |\\__,_|_| |_|_| |_|\\__,_|\\__, |_| |_|\\___||___/
        |___/                          |___/</span>`;
-      const whoami = `<span class="tc-accent tc-bold" style="font-size:1.1em">Ryan Hughes</span>\n<span class="tc-muted">husband · builder · founder · open-source contributor · Fort Lauderdale, FL</span>`;
+      const whoami = whoamiOutput(homeCtx);
       const neo = cmdNeofetch('', homeCtx);
-      const motd = `<span class="tc-white">Welcome.</span> <span class="tc-muted">Type ${click('help', 'help', 'tc-link-inline')} for commands, or just click anything highlighted.</span>\n<span class="tc-muted">Try: ${click('ls', 'ls', 'tc-link-inline')}  ${click('lt', 'lt', 'tc-link-inline')}  ${click('man ryan', 'man ryan', 'tc-link-inline')}  ${click('cat resume.txt', 'cat resume.txt', 'tc-link-inline')}  ${click('cat connect/*', 'cat connect/*', 'tc-link-inline')}</span>`;
+      const motd = `<span class="tc-white">Welcome.</span> <span class="tc-muted">Type ${click('help', 'help', 'tc-link-inline')} for commands, or just click anything highlighted.</span>\n<span class="tc-muted">Try: ${click('podcast', 'podcast', 'tc-link-inline')}  ${click('blog', 'blog', 'tc-link-inline')}  ${click('man ryan', 'man ryan', 'tc-link-inline')}  ${click('cat resume.txt', 'cat resume.txt', 'tc-link-inline')}  ${click('cat connect/*', 'cat connect/*', 'tc-link-inline')}</span>`;
       return [banner, whoami, neo, motd].join('\n\n');
     }
     default: {
