@@ -34,9 +34,9 @@ At this point, it's a reasonably decent little game that I'm happy with. You can
 
 Underneath it, Three.js handles the 3D scene and Rapier handles the physics. The whole thing runs in your browser, with no AI calls or game server needed to play.
 
-After about an hour, I was pretty impressed. There's a lot that has to work together to turn a request like this into a playable game, and every revision touches some of those same pieces. Changing how a coin gets caught affects the physics, the animation, and when the reward gets paid.
+After about an hour, I was pretty impressed. Every revision touches several parts of the game. Changing how a coin gets caught affects the physics, the animation, and when the reward gets paid.
 
-That's what this experiment illustrated for me: how far frontier models have come in taking a complex task, working through the dependent parts, and turning it into something usable. I could play what it made, explain what felt wrong, and keep refining it in the same conversation.
+This showed me how far frontier models have come in taking a complex task, working through its dependencies, and making something usable. I could play what it made, explain what felt wrong, and keep refining it in the same conversation.
 
 I'm excited to see what the next models bring to the table.
 
