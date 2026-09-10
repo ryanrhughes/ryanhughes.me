@@ -1,41 +1,43 @@
 ---
 title: "I Built a 3D Coin Pusher with Astra in About an Hour"
 date: 2026-09-10
-description: "A few prompts, about an hour, and a playable arcade game with real coin physics, swimming fish, and a shark that bumps the machine."
+description: "I wanted to put Astra through its paces. A coin pusher turned out to be a pretty good test: 3D rendering, animation, physics, and a jackpot that needed some restraint."
 tags: ["ai", "astra", "experiments", "games"]
 draft: false
 ---
 
-I built a playable 3D coin pusher with Astra in about an hour. The kind of machine you stand in front of at an arcade, drop coins into, and convince yourself that the pile hanging over the edge is definitely going to fall on the next turn.
+I wanted to see what Astra could do, so I had it build a 3D arcade coin pusher. About an hour later, I was playing it.
+
+I happen to be a big fan of coin pushers, especially the SpongeBob machines at arcades. I can stand there for way too long convincing myself that the pile hanging over the edge is definitely going to fall on the next turn. So this was a pretty easy choice for something I'd actually want to play. 😅
 
 [You can play it here.](/coin-pusher-astra/)
 
 ![Deep Sea Gold Rush, the underwater coin pusher built with Astra](/images/blog/coin-pusher-astra/game.webp)
 
-I started by describing the SpongeBob and Marvel coin pushers as references. I wanted to insert coins, watch them collide and fall naturally, hit specials, and feel like I was standing at an actual cabinet. I also wanted a slightly questionable nudge button, because obviously.
+It's also a surprisingly good test for a new frontier model. You've got 3D rendering, animation, collision detection, gravity, and all the game logic that ties those things together. A coin needs to fall, bounce off something, land in a pile, and move other coins when the pusher comes forward. If one of those pieces is wrong, you feel it immediately.
 
-A few prompts got the game going. Then I played it and kept asking for changes. Most of the direction was as informal as this:
+Then it has to be fun. Getting the physics working is only part of it; the timing, rewards, and controls all affect whether you want to drop another coin.
+
+My first prompt described the SpongeBob and Marvel coin pushers as references. I wanted it to feel like standing in front of an actual cabinet, right down to a slightly questionable button for nudging the machine to knock coins loose.
+
+A few prompts got the game going. From there, I played it and asked for changes. Some of those were just because they sounded fun:
 
 > add fish floating around and maybe like a shark that comes every so often and hits a machine.
 
-So now there are fish swimming around it, and a shark occasionally comes over and bumps the cabinet hard enough to move the coin pile. That might be my favorite part. 😅
+So now fish swim around the cabinet, and a shark occasionally comes over and bumps it hard enough to move the coin pile. I'm pretty happy that made it into the game.
 
-The useful part of the process was being able to react to something I could actually play. The early bonus mechanic was too easy: a coin could pass near the target and trigger it. I wanted it to bounce through moving pegs and actually land inside a little cup. Astra changed the game to do that.
+We definitely had to revise things over that hour. In the first version, you could basically sit there and SPAM jackpots. The targets were too easy to hit, coins kept pouring back into your pocket, and there wasn't much reason to care where you dropped them.
 
-Then I realized that aiming at the same spot over and over wasn't particularly interesting:
+We made the chute move back and forth so you have to time your drop, added a short delay between coins, and removed the overly generous side targets. Now you're aiming for one small treasure cup. Catch a coin there and it stays put until the shark knocks it loose. Three of those catches and releases earn the jackpot.
 
-> I also think instead of being able to aim and just drop in the same place, the aim should be moving back and forth and you're having to time the drop
+At this point, it's a reasonably decent little game that I'm happy with. You can run out of coins. You can chase a high score. And yes, you can get penalized for nudging the machine too much.
 
-The chute now sweeps across the machine. You time the release. There's a short delay between drops, and the indicator is a lit coin slot built into the cabinet.
+Underneath it, Three.js handles the 3D scene and Rapier handles the physics. The whole thing runs in your browser, with no AI calls or game server needed to play.
 
-I spent a fair amount of the iteration making it harder. The side targets paid out five and ten coins so often that you basically couldn't run out. We removed them and kept one small treasure cup. Catch a coin there and it stays stuck until the shark knocks it loose. Each release earns a gem; three gems pay the jackpot.
+After about an hour, I was pretty impressed. There's a lot that has to work together to turn a request like this into a playable game, and every revision touches some of those same pieces. Changing how a coin gets caught affects the physics, the animation, and when the reward gets paid.
 
-There were things to correct along the way, too. Alerts covered the falling coins. A floating “DROP HERE” label looked out of place. When we added scoring, the jackpot got changed to points without paying coins into the pocket. I hit it, noticed the missing payout, and had that fixed.
+That's what this experiment illustrated for me: how far frontier models have come in taking a complex task, working through the dependent parts, and turning it into something usable. I could play what it made, explain what felt wrong, and keep refining it in the same conversation.
 
-That's a pretty good description of how I like building with these tools: ask for something, try it, notice what's wrong, explain what I meant. The prompts were mostly feedback about the experience.
-
-The game uses Three.js for the 3D scene, Rapier for physics, and Lucide for icons. Those are its three runtime dependencies. TypeScript and Vite handle the build, and it deploys as static files on this site. The physics runs in your browser; playing doesn't call an AI model or need a game server.
-
-It's still an experiment, and I'm sure the balance could use more work. But going from “I want an arcade coin pusher” to playing one with a shark that occasionally helps you cheat, in about an hour, is a pretty fun way to spend an afternoon.
+I'm excited to see what the next models bring to the table.
 
 [Give it a few coins.](/coin-pusher-astra/)
