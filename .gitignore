@@ -1,8 +1,14 @@
 node_modules/
 dist/
 .astro/
+.wrangler/
 .turbo/
 *.log
 .DS_Store
 .env
 .env.*
+
+# Rebuilt from games/coin-pusher-astra by npm run build:game
+public/coin-pusher-astra/
+games/coin-pusher-astra/artifacts/
+games/coin-pusher-astra/test-results/

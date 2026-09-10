@@ -1,6 +1,10 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "personal-website",
+  "account_id": "29ac8c38cc3371d2f4ceda8bf3db43c1",
+  "routes": [{ "pattern": "ryanhughes.me", "custom_domain": true }],
+  "workers_dev": true,
+  "preview_urls": true,
   "compatibility_date": "2025-01-06",
   "assets": {
     "directory": "./dist",

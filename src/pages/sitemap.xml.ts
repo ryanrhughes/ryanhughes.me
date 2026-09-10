@@ -12,6 +12,7 @@ const STATIC_PATHS = [
   'resume',
   'podcast', 'podcast/readme',
   'blog',
+  'coin-pusher-astra',
 ];
 
 interface Entry {
